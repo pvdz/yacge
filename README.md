@@ -10,7 +10,7 @@ It's not finished. It will probably never be finished. It's mostly here to serve
 
 # Features
 
-- Chess board with draggable pieces. Touchscreen too. Allowing you to play a local game of regular chess
+- Chess board with draggable pieces. Touchscreen too (mostly). Allowing you to play a local game of regular chess
 - Supports all the rules of chess
   - Regular piece moves, en passant, castling, promotion, 50 half-move rule, threefold repeat rule
   - Note: promotion target has to be picked from debug menu before moving the pawn, sorry. Most of the time you want queen, anyways :)
@@ -57,11 +57,15 @@ For the ultimate "why", the answer is much simpler: cause I wanted to :) It's fu
   - (The point of this is to support a neural network learning the game and I want to show it play multiple games at once)
 - Add stockfish to it? Or some other established open source engine, to play moves and what not.
 - Flip board (black down)
+- Show names when playing back PGN? Maybe more meta data.
+- Support and show certain markers like `?!` etc.
 
 # TOFIX
 
 - Looks like I created arrows at a fixed width, even though the board scales with available window space. Oops
 - PGN import hasn't been thoroughly tested. Probably needs a fix or two to be more generic.
+- Touch drag of pieces needs to cancel event, currently not useful
+- Is castling state tracking broken when playing back PGN? In general? Or just a visual glitch?
 
 # Future
 

@@ -1,13 +1,14 @@
 <!doctype html>
 <html>
+<head>
   <style>
-    .boxing {
+    .board_outer {
       float: left;
       margin-right: 10px;
       min-width: 400px;
       min-height: 400px;
     }
-    .flexing {
+    .board_middle {
       display: flex;
       justify-content: center;
       align-items: center;
@@ -15,7 +16,7 @@
       user-select: none;
       margin-bottom: 10px;
     }
-    .inner {
+    .board_inner {
       position: relative;
       display: grid;
       grid-template-columns: minmax(0, 1fr) repeat(8, minmax(0, 3fr)) minmax(0, 1fr);
@@ -32,7 +33,7 @@
       cursor: pointer;
       border: 2px solid transparent;
     }
-    .cell p {
+    .cell .black, .cell .white {
       pointer-events: none;
     }
     .flying {
@@ -56,6 +57,7 @@
     }
 
     label { white-space: nowrap; }
+    fieldset { margin: 10px; }
 
     .dark {
       background-color: #111827;
@@ -64,35 +66,35 @@
       background-color: #374151;
     }
 
-    .inner .light.last {
+    .board_inner .light.last {
       background-color: rgba(133, 131, 84, 0.73);
     }
-    .inner .dark.last {
+    .board_inner .dark.last {
       background-color: rgba(128, 126, 80);
     }
 
-    .inner .dark.lit {
+    .board_inner .dark.lit {
       background-color: rgba(56, 109, 238, 0.51);
     }
-    .inner .light.lit {
+    .board_inner .light.lit {
       background-color: rgba(56, 109, 239);
     }
 
-    .inner .dark.lit.last {
+    .board_inner .dark.lit.last {
       background-color: #a5be49;
     }
-    .inner .light.lit.last {
+    .board_inner .light.lit.last {
       background-color: #798c35;
     }
 
-    .inner .dark:hover {
+    .board_inner .dark:hover {
       background-color: rgba(81, 71, 55, 0.73);
     }
-    .inner .light:hover {
+    .board_inner .light:hover {
       background-color: rgba(81, 71, 55, 0.73);
       border: 2px solid #8f8f8f;
     }
-    .inner .last:hover {
+    .board_inner .last:hover {
       background-color: rgba(91, 82, 52, 0.73);
     }
 
@@ -167,6 +169,7 @@
     .material .pieces {
       /* material captured */
       font-size: 25px;
+      line-height: 20px;
     }
 
     .turn_block {
@@ -213,316 +216,23 @@
     .shown_move {
       background-color: yellow;
     }
+    .move_player {
+        display:none;
+        float: left;
+        margin-right: 5px;
+        margin-top: 0;
+    }
+    .move_player_controls {
+        display: none; margin: 5px;
+    }
+    .move_player_button {
+        width: 50px;
+        height: 50px;
+    }
   </style>
-
-  <div class="boxing">
-    <div class="flexing">
-      <div id="$board" class="inner">
-        <div class="gutter_label"></div>
-        <div class="gutter_label">a</div>
-        <div class="gutter_label">b</div>
-        <div class="gutter_label">c</div>
-        <div class="gutter_label">d</div>
-        <div class="gutter_label">e</div>
-        <div class="gutter_label">f</div>
-        <div class="gutter_label">g</div>
-        <div class="gutter_label">h</div>
-        <div class="gutter_label"></div>
-
-        <div class="gutter_label">8</div>
-        <div id="$a8" class="cell dark">
-          <p class="black"></p>
-          <p class="id"><span class="index">63</span><span class="dash"> - </span><span class="coord">a8</span></p>
-        </div>
-        <div id="$b8" class="cell light">
-          <p class="black"></p>
-          <p class="id"><span class="index">62</span><span class="dash"> - </span><span class="coord">b8</span></p>
-        </div>
-        <div id="$c8" class="cell dark">
-          <p class="black"></p>
-          <p class="id"><span class="index">61</span><span class="dash"> - </span><span class="coord">c8</span></p>
-        </div>
-        <div id="$d8" class="cell light">
-          <p class="black"></p>
-          <p class="id"><span class="index">60</span><span class="dash"> - </span><span class="coord">d8</span></p>
-        </div>
-        <div id="$e8" class="cell dark">
-          <p class="black"></p>
-          <p class="id"><span class="index">59</span><span class="dash"> - </span><span class="coord">e8</span></p>
-        </div>
-        <div id="$f8" class="cell light">
-          <p class="black"></p>
-          <p class="id"><span class="index">58</span><span class="dash"> - </span><span class="coord">f8</span></p>
-        </div>
-        <div id="$g8" class="cell dark">
-          <p class="black"></p>
-          <p class="id"><span class="index">57</span><span class="dash"> - </span><span class="coord">g8</span></p>
-        </div>
-        <div id="$h8" class="cell light">
-          <p class="black"></p>
-          <p class="id"><span class="index">56</span><span class="dash"> - </span><span class="coord">h8</span></p>
-        </div>
-        <div class="gutter_label">8</div>
-
-        <div class="gutter_label">7</div>
-        <div id="$a7" class="cell light">
-          <p class="black"></p>
-          <p class="id"><span class="index">55</span><span class="dash"> - </span><span class="coord">a7</span></p>
-        </div>
-        <div id="$b7" class="cell dark">
-          <p class="black"></p>
-          <p class="id"><span class="index">54</span><span class="dash"> - </span><span class="coord">b7</span></p>
-        </div>
-        <div id="$c7" class="cell light">
-          <p class="black"></p>
-          <p class="id"><span class="index">53</span><span class="dash"> - </span><span class="coord">c7</span></p>
-        </div>
-        <div id="$d7" class="cell dark">
-          <p class="black"></p>
-          <p class="id"><span class="index">52</span><span class="dash"> - </span><span class="coord">d7</span></p>
-        </div>
-        <div id="$e7" class="cell light">
-          <p class="black"></p>
-          <p class="id"><span class="index">51</span><span class="dash"> - </span><span class="coord">e7</span></p>
-        </div>
-        <div id="$f7" class="cell dark">
-          <p class="black"></p>
-          <p class="id"><span class="index">50</span><span class="dash"> - </span><span class="coord">f7</span></p>
-        </div>
-        <div id="$g7" class="cell light">
-          <p class="black"></p>
-          <p class="id"><span class="index">49</span><span class="dash"> - </span><span class="coord">g7</span></p>
-        </div>
-        <div id="$h7" class="cell dark">
-          <p class="black"></p>
-          <p class="id"><span class="index">48</span><span class="dash"> - </span><span class="coord">h7</span></p>
-        </div>
-        <div class="gutter_label">7</div>
-
-        <div class="gutter_label">6</div>
-        <div id="$a6" class="cell dark">
-          <p></p>
-          <p class="id"><span class="index">47</span><span class="dash"> - </span><span class="coord">a6</span></p>
-        </div>
-        <div id="$b6" class="cell light">
-          <p></p>
-          <p class="id"><span class="index">46</span><span class="dash"> - </span><span class="coord">b6</span></p>
-        </div>
-        <div id="$c6" class="cell dark">
-          <p></p>
-          <p class="id"><span class="index">45</span><span class="dash"> - </span><span class="coord">c6</span></p>
-        </div>
-        <div id="$d6" class="cell light">
-          <p></p>
-          <p class="id"><span class="index">44</span><span class="dash"> - </span><span class="coord">d6</span></p>
-        </div>
-        <div id="$e6" class="cell dark">
-          <p></p>
-          <p class="id"><span class="index">43</span><span class="dash"> - </span><span class="coord">e6</span></p>
-        </div>
-        <div id="$f6" class="cell light">
-          <p></p>
-          <p class="id"><span class="index">42</span><span class="dash"> - </span><span class="coord">f6</span></p>
-        </div>
-        <div id="$g6" class="cell dark">
-          <p></p>
-          <p class="id"><span class="index">41</span><span class="dash"> - </span><span class="coord">g6</span></p>
-        </div>
-        <div id="$h6" class="cell light">
-          <p></p>
-          <p class="id"><span class="index">40</span><span class="dash"> - </span><span class="coord">h6</span></p>
-        </div>
-        <div class="gutter_label">6</div>
-
-        <div class="gutter_label">5</div>
-        <div id="$a5" class="cell light">
-          <p></p>
-          <p class="id"><span class="index">39</span><span class="dash"> - </span><span class="coord">a5</span></p>
-        </div>
-        <div id="$b5" class="cell dark">
-          <p></p>
-          <p class="id"><span class="index">38</span><span class="dash"> - </span><span class="coord">b5</span></p>
-        </div>
-        <div id="$c5" class="cell light">
-          <p></p>
-          <p class="id"><span class="index">37</span><span class="dash"> - </span><span class="coord">c5</span></p>
-        </div>
-        <div id="$d5" class="cell dark">
-          <p></p>
-          <p class="id"><span class="index">36</span><span class="dash"> - </span><span class="coord">d5</span></p>
-        </div>
-        <div id="$e5" class="cell light">
-          <p></p>
-          <p class="id"><span class="index">35</span><span class="dash"> - </span><span class="coord">e5</span></p>
-        </div>
-        <div id="$f5" class="cell dark">
-          <p></p>
-          <p class="id"><span class="index">34</span><span class="dash"> - </span><span class="coord">f5</span></p>
-        </div>
-        <div id="$g5" class="cell light">
-          <p></p>
-          <p class="id"><span class="index">33</span><span class="dash"> - </span><span class="coord">g5</span></p>
-        </div>
-        <div id="$h5" class="cell dark">
-          <p></p>
-          <p class="id"><span class="index">32</span><span class="dash"> - </span><span class="coord">h5</span></p>
-        </div>
-        <div class="gutter_label">5</div>
-
-        <div class="gutter_label">4</div>
-        <div id="$a4" class="cell dark">
-          <p></p>
-          <p class="id"><span class="index">31</span><span class="dash"> - </span><span class="coord">a4</span></p>
-        </div>
-        <div id="$b4" class="cell light">
-          <p></p>
-          <p class="id"><span class="index">30</span><span class="dash"> - </span><span class="coord">b4</span></p>
-        </div>
-        <div id="$c4" class="cell dark">
-          <p></p>
-          <p class="id"><span class="index">29</span><span class="dash"> - </span><span class="coord">c4</span></p>
-        </div>
-        <div id="$d4" class="cell light">
-          <p></p>
-          <p class="id"><span class="index">28</span><span class="dash"> - </span><span class="coord">d4</span></p>
-        </div>
-        <div id="$e4" class="cell dark">
-          <p></p>
-          <p class="id"><span class="index">27</span><span class="dash"> - </span><span class="coord">e4</span></p>
-        </div>
-        <div id="$f4" class="cell light">
-          <p></p>
-          <p class="id"><span class="index">26</span><span class="dash"> - </span><span class="coord">f4</span></p>
-        </div>
-        <div id="$g4" class="cell dark">
-          <p></p>
-          <p class="id"><span class="index">25</span><span class="dash"> - </span><span class="coord">g4</span></p>
-        </div>
-        <div id="$h4" class="cell light">
-          <p></p>
-          <p class="id"><span class="index">24</span><span class="dash"> - </span><span class="coord">h4</span></p>
-        </div>
-        <div class="gutter_label">4</div>
-
-        <div class="gutter_label">3</div>
-        <div id="$a3" class="cell light">
-          <p></p>
-          <p class="id"><span class="index">23</span><span class="dash"> - </span><span class="coord">a3</span></p>
-        </div>
-        <div id="$b3" class="cell dark">
-          <p></p>
-          <p class="id"><span class="index">22</span><span class="dash"> - </span><span class="coord">b3</span></p>
-        </div>
-        <div id="$c3" class="cell light">
-          <p></p>
-          <p class="id"><span class="index">21</span><span class="dash"> - </span><span class="coord">c3</span></p>
-        </div>
-        <div id="$d3" class="cell dark">
-          <p></p>
-          <p class="id"><span class="index">20</span><span class="dash"> - </span><span class="coord">d3</span></p>
-        </div>
-        <div id="$e3" class="cell light">
-          <p></p>
-          <p class="id"><span class="index">19</span><span class="dash"> - </span><span class="coord">e3</span></p>
-        </div>
-        <div id="$f3" class="cell dark">
-          <p></p>
-          <p class="id"><span class="index">18</span><span class="dash"> - </span><span class="coord">f3</span></p>
-        </div>
-        <div id="$g3" class="cell light">
-          <p></p>
-          <p class="id"><span class="index">17</span><span class="dash"> - </span><span class="coord">g3</span></p>
-        </div>
-        <div id="$h3" class="cell dark">
-          <p></p>
-          <p class="id"><span class="index">16</span><span class="dash"> - </span><span class="coord">h3</span></p>
-        </div>
-        <div class="gutter_label">3</div>
-
-        <div class="gutter_label">2</div>
-        <div id="$a2" class="cell dark">
-          <p class="white"></p>
-          <p class="id"><span class="index">15</span><span class="dash"> - </span><span class="coord">a2</span></p>
-        </div>
-        <div id="$b2" class="cell light">
-          <p class="white"></p>
-          <p class="id"><span class="index">14</span><span class="dash"> - </span><span class="coord">b2</span></p>
-        </div>
-        <div id="$c2" class="cell dark">
-          <p class="white"></p>
-          <p class="id"><span class="index">13</span><span class="dash"> - </span><span class="coord">c2</span></p>
-        </div>
-        <div id="$d2" class="cell light">
-          <p class="white"></p>
-          <p class="id"><span class="index">12</span><span class="dash"> - </span><span class="coord">d2</span></p>
-        </div>
-        <div id="$e2" class="cell dark">
-          <p class="white"></p>
-          <p class="id"><span class="index">11</span><span class="dash"> - </span><span class="coord">e2</span></p>
-        </div>
-        <div id="$f2" class="cell light">
-          <p class="white"></p>
-          <p class="id"><span class="index">10</span><span class="dash"> - </span><span class="coord">f2</span></p>
-        </div>
-        <div id="$g2" class="cell dark">
-          <p class="white"></p>
-          <p class="id"><span class="index">9</span><span class="dash"> - </span><span class="coord">g2</span></p>
-        </div>
-        <div id="$h2" class="cell light">
-          <p class="white"></p>
-          <p class="id"><span class="index">8</span><span class="dash"> - </span><span class="coord">h2</span></p>
-        </div>
-        <div class="gutter_label">2</div>
-
-        <div class="gutter_label">1</div>
-        <div id="$a1" class="cell light">
-          <p data-i="7" class="white"></p>
-          <p class="id"><span class="index">7</span><span class="dash"> - </span><span class="coord">a1</span></p>
-        </div>
-        <div id="$b1" class="cell dark">
-          <p data-i="6" class="white"></p>
-          <p class="id"><span class="index">6</span><span class="dash"> - </span><span class="coord">b1</span></p>
-        </div>
-        <div id="$c1" class="cell light">
-          <p data-i="5" class="white"></p>
-          <p class="id"><span class="index">5</span><span class="dash"> - </span><span class="coord">c1</span></p>
-        </div>
-        <div id="$d1" class="cell dark">
-          <p data-i="4" class="white"></p>
-          <p class="id"><span class="index">4</span><span class="dash"> - </span><span class="coord">d1</span></p>
-        </div>
-        <div id="$e1" class="cell light">
-          <p data-i="3" class="white"></p>
-          <p class="id"><span class="index">3</span><span class="dash"> - </span><span class="coord">e1</span></p>
-        </div>
-        <div id="$f1" class="cell dark">
-          <p data-i="2" class="white"></p>
-          <p class="id"><span class="index">2</span><span class="dash"> - </span><span class="coord">f1</span></p>
-        </div>
-        <div id="$g1" class="cell light">
-          <p class="white">♞</p>
-          <p class="id"><span class="index">1</span><span class="dash"> - </span><span class="coord">g1</span></p>
-        </div>
-        <div id="$h1" class="cell dark">
-          <p class="white">♜</p>
-          <p class="id"><span class="index">0</span><span class="dash"> - </span><span class="coord">h1</span></p>
-        </div>
-        <div class="gutter_label">1</div>
-
-        <div class="gutter_label"></div>
-        <div class="gutter_label">a</div>
-        <div class="gutter_label">b</div>
-        <div class="gutter_label">c</div>
-        <div class="gutter_label">d</div>
-        <div class="gutter_label">e</div>
-        <div class="gutter_label">f</div>
-        <div class="gutter_label">g</div>
-        <div class="gutter_label">h</div>
-        <div class="gutter_label"></div>
-      </div>
-    </div>
-  </div>
-
+</head>
+<body>
+  <script src="board.js"></script>
   <script src="constants.js"></script>
   <script src="parser.js"></script>
   <script src="serialize.js"></script>
@@ -535,9 +245,9 @@
   <script src="chess.js"></script>
 
   <div class="menu">
-    <fieldset style="margin-bottom: 10px;">
+    <fieldset>
       <legend>Current game</legend>
-      <fieldset id="$turn" style="margin-bottom: 5px; float: left;">
+      <fieldset id="$turn" style="float: left;">
         <legend>Turn</legend>
         <div>
           <div class="turn_block">
@@ -571,159 +281,150 @@
         <label style="display: inline-block; margin: 5px 0;">50 turn: <input id="$turn50" class="enpassanter" pattern="\d+" value="0" onchange="H.fiftyTurnCounter = parseInt(this.value, 10) || 0; reflect(H);"/> <small></small></label>
         Threefold repeat: <span id="$three">?</span>x
       </div>
-      <div><nobr>FEN: <input id="$fennow" value="r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1" style="width: 350px;" /></nobr></div>
-      <fieldset class="material" style="margin-bottom: 10px;">
+      <fieldset class="material">
         <legend>Material</legend>
         <div>White: <span id="$material_white"></span></div>
         <div>Black: <span id="$material_black"></span></div>
       </fieldset>
     </fieldset>
-    <div id="$moveDiv" style="display:none; float: left; margin-right: 5px;">
-      <fieldset>
-        <legend>Moves</legend>
-        <div id="$pngcontrols" style="display: none; margin: 5px;">
-          <button id="$zeropgn" style="width: 50px; height: 50px;" onpointerup="fwdPgn(-Infinity);">&lt;&lt;</button>
-          <button id="$backpgn" style="width: 50px; height: 50px;" onpointerup="fwdPgn(-1);">&lt;</button>
-          <button id="$togglepgn" style="width: 50px; height: 50px;" onpointerup="togglePgn($pgn.value)">▶︎/⏸</button>
-          <button id="$fwdpgn" style="width: 50px; height: 50px;" onpointerup="fwdPgn(1);">&gt;</button>
-          <button id="$allpgn" style="width: 50px; height: 50px;" onpointerup="fwdPgn(Infinity);">&gt;&gt;</button>
-        </div>
-        <pre id="$moves" style="color:#555;"></pre>
-      </fieldset>
-    </div>
-    <fieldset style="margin-top: 10px;">
-      <legend>Debug</legend>
-      <div onchange="validationMode = document.querySelector('input[name=validation]:checked').value;">
-        <fieldset style="margin-top: 10px;">
-          <legend>Move validation enforcement</legend>
-          <label><input type="radio" name="validation" value="none"/> none</label>
-          <label><input type="radio" name="validation" value="strict" checked/> strict</label>
-          <label><input type="checkbox" id="$show_pseudo_moves" onchange="reflect(H);"/> Show all pseudo moves</label>
-        </fieldset>
+    <fieldset id="$movePlayer" class="move_player">
+      <legend>Moves</legend>
+      <div id="$pngcontrols" class="move_player_controls">
+        <button id="$zeropgn" class="move_player_button" onpointerup="fwdPgn(-Infinity);">&lt;&lt;</button>
+        <button id="$backpgn" class="move_player_button" onpointerup="fwdPgn(-1);">&lt;</button>
+        <button id="$togglepgn" class="move_player_button" onpointerup="togglePgn($pgn.value)">▶︎/⏸</button>
+        <button id="$fwdpgn" class="move_player_button" onpointerup="fwdPgn(1);">&gt;</button>
+        <button id="$allpgn" class="move_player_button" onpointerup="fwdPgn(Infinity);">&gt;&gt;</button>
       </div>
-      <div onchange="currentOverlay = document.querySelector('input[name=underlay]:checked').value; reflect(H);">
-        <fieldset style="margin-top: 10px;">
-          <legend>Layer view</legend>
-          <label><input type="radio" name="underlay" value="none"/> none</label>
-          <label><input type="radio" name="underlay" value="can_move" checked/> canMove</label>
-          <label><input type="radio" name="underlay" value="filled"/> filled</label>
-          <label><input type="radio" name="underlay" value="white"/> white</label>
-          <label><input type="radio" name="underlay" value="black"/> black</label>
-          <label><input type="radio" name="underlay" value="pawns"/> pawns</label>
-          <label><input type="radio" name="underlay" value="kings"/> kings</label>
-          <label><input type="radio" name="underlay" value="queens"/> queens</label>
-          <label><input type="radio" name="underlay" value="knights"/> knights</label>
-          <label><input type="radio" name="underlay" value="bishops"/> bishops</label>
-          <label><input type="radio" name="underlay" value="rooks"/> rooks</label>
-          <label><input type="radio" name="underlay" value="is_checked_white"/> isChecked.white</label>
-          <label><input type="radio" name="underlay" value="is_checked_black"/> isChecked.black</label>
-        </fieldset>
-      </div>
-      <div onchange="$board.classList.remove('cell_id_coord', 'cell_id_index', 'cell_id_both', 'cell_id_none'); $board.classList.add(document.querySelector('input[name=cell_id]:checked').value);">
-        <fieldset style="margin-top: 10px;">
-          <legend>Cell ID hint</legend>
-          <label><input type="radio" name="cell_id" value="cell_id_none" checked/> none</label>
-          <label><input type="radio" name="cell_id" value="cell_id_index"/> index</label>
-          <label><input type="radio" name="cell_id" value="cell_id_coord"/> coord</label>
-          <label><input type="radio" name="cell_id" value="cell_id_both"/> both</label>
-        </fieldset>
-      </div>
-      <div>
-        <fieldset style="margin: 5px 0" onpointerup="autoArrowClear = document.querySelector('input[name=auto_arrow_remove]:checked').value;">
-          <legend>Arrow clearing</legend>
-          <div><label><input type="radio" name="auto_arrow_remove" value="none"/> never</label></div>
-          <div><label><input type="radio" name="auto_arrow_remove" value="select" checked/> after cell select</label></div>
-<!--          <div><label><input type="radio" name="auto_arrow_remove" value="opp"/> after opponent move</label></div>-->
-          <div><label><input type="radio" name="auto_arrow_remove" value="move"/> after any move</label></div>
-          <div style="margin-top:5px;"><button onpointerup="clearArrows();">Clear arrows now</button></div>
-        </fieldset>
-      </div>
-      <div id="$fens">
-        <fieldset style="margin-top: 10px;">
-          <legend>Presets</legend>
-          <div><input pattern="([rnbqkpRNBQKP1-8\/]+){8} [wb] [KQkq\-]+ (-|[a-h][1-8]) \d+ \d+" id="$fen_start" value="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" /> <button id="$reset">start</button></div>
-          <div><input pattern="([rnbqkpRNBQKP1-8\/]+){8} [wb] [KQkq\-]+ (-|[a-h][1-8]) \d+ \d+" id="$fen2" value="rnbq1bnr/pppppppp/8/4Q3/3k4/8/PPPPPPPP/RNB1KBNR b KQ - 0 1" /> <button id="$load2">load</button> queen ray check over king shadow</div>
-          <div><input pattern="([rnbqkpRNBQKP1-8\/]+){8} [wb] [KQkq\-]+ (-|[a-h][1-8]) \d+ \d+" id="$fen3" value="r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1" /> <button id="$load3">load</button> castling</div>
-          <div><input pattern="([rnbqkpRNBQKP1-8\/]+){8} [wb] [KQkq\-]+ (-|[a-h][1-8]) \d+ \d+" id="$fen4" value="rnbqk1nr/pppppppp/4b3/8/8/4B3/PPPPPPPP/RN1QKBNR b KQkq - 0 1" /> <button id="$load4">load</button> regression</div>
-          <div><input pattern="([rnbqkpRNBQKP1-8\/]+){8} [wb] [KQkq\-]+ (-|[a-h][1-8]) \d+ \d+" id="$fen5" value="rnbq1bnr/ppp2ppp/8/k2pP3/p7/8/PPPP1PPP/RNBQKBNR b - d5 0 2" /> <button id="$load5">load</button> en-passant</div>
-          <div><input pattern="([rnbqkpRNBQKP1-8\/]+){8} [wb] [KQkq\-]+ (-|[a-h][1-8]) \d+ \d+" id="$fen6" value="r1p1k1n1/1p1p1p1p/p1b1p1p1/1n1q1b1r/R1B1K1N1/1P1P1P1P/P1P1P1P1/1N1Q1B1R b q - 2 10" /> <button id="$load6">load</button> stress?</div>
-          <div><input pattern="([rnbqkpRNBQKP1-8\/]+){8} [wb] [KQkq\-]+ (-|[a-h][1-8]) \d+ \d+" id="$fen7" value="4k3/8/q1q1q3/8/q3q3/8/q1q1q3/4K3 b - - 6 7" /> <button id="$load7">load</button> rooked</div>
-          <div><input pattern="([rnbqkpRNBQKP1-8\/]+){8} [wb] [KQkq\-]+ (-|[a-h][1-8]) \d+ \d+" id="$fen8" value="rnb2bn1/ppp1pppp/7Q/4KQ1r/8/2p3k1/1PPPPPPP/RNBQ1BNR b - - 0 6" /> <button id="$load8">load</button> pgn</div>
-        </fieldset>
-      </div>
-      <div>
-        <fieldset style="margin-top: 10px;">
-          <legend>PGN</legend>
-          <textarea id="$pgn">[Event "Live Chess - chess"][Event "Live Chess - chess"]
-[Site "Chess.com"]
-[Date "2023.12.22"]
-[Round "?"]
-[White "therealpetercapaldi"]
-[Black "kuvos"]
+      <pre id="$moves" style="color:#555;"></pre>
+    </fieldset>
+    <fieldset>
+      <legend>PGN</legend>
+      <textarea id="$pgn">[Event "Third Rosenwald Trophy"]
+[Site "New York, NY USA"]
+[Date "1956.10.17"]
+[EventDate "1956.10.07"]
+[Round "8"]
 [Result "0-1"]
-[TimeControl "600"]
-[WhiteElo "852"]
-[BlackElo "835"]
-[Termination "kuvos won by checkmate"]
+[White "Donald Byrne"]
+[Black "Robert James Fischer"]
+[ECO "D92"]
+[PlyCount "82"]
 
-1. g3 d5 2. Bg2 Nf6 3. e3 g6 4. Nf3 Bg7 5. Nc3 O-O 6. d4 Nc6 7. Bd2 a6 8. a3 b5
-9. Qe2 Bf5 10. O-O-O b4 11. Nxd5 Qxd5 12. c4 Qd7 13. Ng5 Bh6 14. e4 Nxd4 15. Qe3
-Nb3+ 16. Kb1 Nxd2+ 17. Rxd2 Bxg5 18. Qxg5 Qe6 19. Rhd1 Bxe4+ 20. Bxe4 Qxe4+ 21.
-Kc1 Qxc4+ 22. Rc2 Qb5 23. Qe3 Nd5 24. Qd2 Nc3 25. bxc3 Rfd8 26. Qe3 Rxd1+ 27.
-Kxd1 bxc3 28. Qxc3 Rd8+ 29. Ke1 Qd3 30. Qxc7 (30. Qxd3 Rxd3 31. Rxc7 Rxa3 32.
-Rxe7 a5) 30... Qd1# 0-1
+1. Nf3 Nf6 2. c4 g6 3. Nc3 Bg7 4. d4 O-O 5. Bf4 d5 6. Qb3 dxc4
+7. Qxc4 c6 8. e4 Nbd7 9. Rd1 Nb6 10. Qc5 Bg4 11. Bg5 Na4 {!} 12.
+Qa3 Nxc3 13. bxc3 Nxe4 14. Bxe7 Qb6 15. Bc4 Nxc3 16. Bc5 Rfe8+
+17. Kf1 Be6 18. Bxb6 Bxc4+ 19. Kg1 Ne2+ 20. Kf1 Nxd4+ 21. Kg1
+Ne2+ 22. Kf1 Nc3+ 23. Kg1 axb6 24. Qb4 Ra4 25. Qxb6 Nxd1 26. h3
+Rxa2 27. Kh2 Nxf2 28. Re1 Rxe1 29. Qd8+ Bf8 30. Nxe1 Bd5 31.
+Nf3 Ne4 32. Qb8 b5 33. h4 h5 34. Ne5 Kg7 35. Kg1 Bc5+ 36. Kf1
+Ng3+ 37. Ke1 Bb4+ 38. Kd1 Bb3+ 39. Kc1 Ne2+ 40. Kb1 Nc3+ 41. Kc1
+Rc2# 0-1
           </textarea>
-          <button id="$initpgn" onpointerup="initPgn($pgn.value);">load pgn</button>
-          <button id="$dbgpgn" onpointerup="initPgn($pgn.value, true);">debug pgn</button>
-        </fieldset>
-      </div>
-      <div>
-        <fieldset style="margin-top: 10px;">
-          <legend>Threefold hash</legend>
-          <label><input id="$thrash" type="text" style="width: 350px"/></label>
-        </fieldset>
-      </div>
-      <div onchange="H.promotionDefault = document.querySelector('input[name=promo]:checked').value;">
-        Default promotion:
-        <label><input type="radio" name="promo" value="fail"/> fail</label>
-        <label><input type="radio" name="promo" value="queen" checked/> queen</label>
-        <label><input type="radio" name="promo" value="rook"/> rook</label>
-        <label><input type="radio" name="promo" value="knight"/> knight</label>
-        <label><input type="radio" name="promo" value="bishop"/> bishop</label>
-      </div>
-      <div>
-        <fieldset style="margin-top: 10px;">
-          <legend>PGN move executor</legend>
-          <div>
-            <label>
-              pawn: <input value="e4" type="text" style="width: 50px"/>
-              <button onpointerup="const ply = parsePgnPly(this.parentNode.querySelector('input').value, H.turnWhite); console.log('ply:', ply); const source = findSourceCellFromPgnMove(H, true, ply.piece, ply.to, ply.fromFile, ply.fromRank); console.log('Move is a', ply.piece, 'from', indexToId[source.i], '(', source, ') to', ply.to)">Dry</button>
-              <button onpointerup="const ply = parsePgnPly(this.parentNode.querySelector('input').value, H.turnWhite); const source = findSourceCellFromPgnMove(H, true, ply.piece, ply.to, ply.fromFile, ply.fromRank); makeMove(H, source.i, idToIndex[ply.to], source.n); reflect(H);">Apply</button>
-            </label>
-          </div>
-          <div>
-            <label>
-              king: <input value="Kxd8" type="text" style="width: 50px"/>
-              <button onpointerup="const ply = parsePgnPly(this.parentNode.querySelector('input').value, H.turnWhite); console.log('ply:', ply); const source = findSourceCellFromPgnMove(H, true, ply.piece, ply.to, ply.fromFile, ply.fromRank); console.log('Move is a', ply.piece, 'from', indexToId[source.i], '(', source, ') to', ply.to)">Dry</button>
-              <button onpointerup="const ply = parsePgnPly(this.parentNode.querySelector('input').value, H.turnWhite); const source = findSourceCellFromPgnMove(H, true, ply.piece, ply.to, ply.fromFile, ply.fromRank); makeMove(H, source.i, idToIndex[ply.to], source.n); reflect(H);">Apply</button>
-            </label>
-          </div>
-          <div>
-            <label>
-              queen: <input value="Qf4" type="text" style="width: 50px"/>
-              <button onpointerup="const ply = parsePgnPly(this.parentNode.querySelector('input').value, H.turnWhite); console.log('ply:', ply); const source = findSourceCellFromPgnMove(H, true, ply.piece, ply.to, ply.fromFile, ply.fromRank); console.log('Move is a', ply.piece, 'from', indexToId[source.i], '(', source, ') to', ply.to)">Dry</button>
-              <button onpointerup="const ply = parsePgnPly(this.parentNode.querySelector('input').value, H.turnWhite); const source = findSourceCellFromPgnMove(H, true, ply.piece, ply.to, ply.fromFile, ply.fromRank); makeMove(H, source.i, idToIndex[ply.to], source.n); reflect(H);">Apply</button>
-            </label>
-          </div>
-          <div>
-            <label>
-              queen: <input value="Ra7" type="text" style="width: 50px"/>
-              <button onpointerup="const ply = parsePgnPly(this.parentNode.querySelector('input').value, H.turnWhite); console.log('ply:', ply); const source = findSourceCellFromPgnMove(H, true, ply.piece, ply.to, ply.fromFile, ply.fromRank); console.log('Move is a', ply.piece, 'from', indexToId[source.i], '(', source, ') to', ply.to)">Dry</button>
-              <button onpointerup="const ply = parsePgnPly(this.parentNode.querySelector('input').value, H.turnWhite); const source = findSourceCellFromPgnMove(H, true, ply.piece, ply.to, ply.fromFile, ply.fromRank); makeMove(H, source.i, idToIndex[ply.to], source.n); reflect(H);">Apply</button>
-            </label>
-          </div>
-        </fieldset>
-      </div>
+      <button id="$initpgn" onpointerup="initPgn($pgn.value);">load pgn</button>
+      <button id="$dbgpgn" onpointerup="initPgn($pgn.value, true);">debug pgn</button>
+    </fieldset>
+    <fieldset>
+      <style>
+          .fen_input { margin-bottom: 5px; }
+          .fen_current { width: 350px; }
+      </style>
+      <legend>FEN</legend>
+      <div class="fen_input"><nobr><input pattern="([rnbqkpRNBQKP1-8\/]+){8} [wb] [KQkq\-]+ (-|[a-h][1-8]) \d+ \d+" id="$fen_input" style="width: 350px;" /> <button onpointerup="reflect(parseFen($fen_input.value));">load</button></nobr></div>
+      <div><nobr><small>Current:</small> <input class="fen_current" id="$fennow" value="r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1"/></nobr></div>
+    </fieldset>
+    <fieldset onchange="H.promotionDefault = document.querySelector('input[name=promo]:checked').value;">
+      <legend>Pawn promotion</legend>
+      <label><input type="radio" name="promo" value="queen" checked/> queen</label>
+      <label><input type="radio" name="promo" value="rook"/> rook</label>
+      <label><input type="radio" name="promo" value="knight"/> knight</label>
+      <label><input type="radio" name="promo" value="bishop"/> bishop</label>
+      <label><input type="radio" name="promo" value="fail"/> (fail)</label>
+    </fieldset>
+    <fieldset>
+      <legend>Debug</legend>
+      <fieldset onchange="validationMode = document.querySelector('input[name=validation]:checked').value;">
+        <legend>Move validation enforcement</legend>
+        <label><input type="radio" name="validation" value="none"/> none</label>
+        <label><input type="radio" name="validation" value="strict" checked/> strict</label>
+        <label><input type="checkbox" id="$show_pseudo_moves" onchange="reflect(H);"/> Show all pseudo moves</label>
+      </fieldset>
+      <fieldset onchange="currentOverlay = document.querySelector('input[name=underlay]:checked').value; reflect(H);">
+        <legend>Layer view</legend>
+        <label><input type="radio" name="underlay" value="none"/> none</label>
+        <label><input type="radio" name="underlay" value="can_move" checked/> canMove</label>
+        <label><input type="radio" name="underlay" value="filled"/> filled</label>
+        <label><input type="radio" name="underlay" value="white"/> white</label>
+        <label><input type="radio" name="underlay" value="black"/> black</label>
+        <label><input type="radio" name="underlay" value="pawns"/> pawns</label>
+        <label><input type="radio" name="underlay" value="kings"/> kings</label>
+        <label><input type="radio" name="underlay" value="queens"/> queens</label>
+        <label><input type="radio" name="underlay" value="knights"/> knights</label>
+        <label><input type="radio" name="underlay" value="bishops"/> bishops</label>
+        <label><input type="radio" name="underlay" value="rooks"/> rooks</label>
+        <label><input type="radio" name="underlay" value="is_checked_white"/> isChecked.white</label>
+        <label><input type="radio" name="underlay" value="is_checked_black"/> isChecked.black</label>
+      </fieldset>
+      <fieldset onchange="$board.classList.remove('cell_id_coord', 'cell_id_index', 'cell_id_both', 'cell_id_none'); $board.classList.add(document.querySelector('input[name=cell_id]:checked').value);">
+        <legend>Cell ID hint</legend>
+        <label><input type="radio" name="cell_id" value="cell_id_none" checked/> none</label>
+        <label><input type="radio" name="cell_id" value="cell_id_index"/> index</label>
+        <label><input type="radio" name="cell_id" value="cell_id_coord"/> coord</label>
+        <label><input type="radio" name="cell_id" value="cell_id_both"/> both</label>
+      </fieldset>
+      <fieldset onpointerup="autoArrowClear = document.querySelector('input[name=auto_arrow_remove]:checked').value;">
+        <legend>Arrow clearing</legend>
+        <div><label><input type="radio" name="auto_arrow_remove" value="none"/> never</label></div>
+        <div><label><input type="radio" name="auto_arrow_remove" value="select" checked/> after cell select</label></div>
+        <div><label><input type="radio" name="auto_arrow_remove" value="move"/> after any move</label></div>
+        <div style="margin-top:5px;"><button onpointerup="clearArrows();">Clear arrows now</button></div>
+      </fieldset>
+      <fieldset id="$fens">
+        <legend>Presets</legend>
+        <div><input pattern="([rnbqkpRNBQKP1-8\/]+){8} [wb] [KQkq\-]+ (-|[a-h][1-8]) \d+ \d+" id="$fen_start" value="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" /> <button>start</button></div>
+        <div><input pattern="([rnbqkpRNBQKP1-8\/]+){8} [wb] [KQkq\-]+ (-|[a-h][1-8]) \d+ \d+" id="$fen2" value="rnbq1bnr/pppppppp/8/4Q3/3k4/8/PPPPPPPP/RNB1KBNR b KQ - 0 1" /> <button>load</button> queen ray check over king shadow</div>
+        <div><input pattern="([rnbqkpRNBQKP1-8\/]+){8} [wb] [KQkq\-]+ (-|[a-h][1-8]) \d+ \d+" id="$fen3" value="r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1" /> <button>load</button> castling</div>
+        <div><input pattern="([rnbqkpRNBQKP1-8\/]+){8} [wb] [KQkq\-]+ (-|[a-h][1-8]) \d+ \d+" id="$fen4" value="rnbqk1nr/pppppppp/4b3/8/8/4B3/PPPPPPPP/RN1QKBNR b KQkq - 0 1" /> <button>load</button> regression</div>
+        <div><input pattern="([rnbqkpRNBQKP1-8\/]+){8} [wb] [KQkq\-]+ (-|[a-h][1-8]) \d+ \d+" id="$fen5" value="rnbq1bnr/ppp2ppp/8/k2pP3/p7/8/PPPP1PPP/RNBQKBNR b - d5 0 2" /> <button>load</button> en-passant</div>
+        <div><input pattern="([rnbqkpRNBQKP1-8\/]+){8} [wb] [KQkq\-]+ (-|[a-h][1-8]) \d+ \d+" id="$fen6" value="r1p1k1n1/1p1p1p1p/p1b1p1p1/1n1q1b1r/R1B1K1N1/1P1P1P1P/P1P1P1P1/1N1Q1B1R b q - 2 10" /> <button>load</button> stress?</div>
+        <div><input pattern="([rnbqkpRNBQKP1-8\/]+){8} [wb] [KQkq\-]+ (-|[a-h][1-8]) \d+ \d+" id="$fen7" value="4k3/8/q1q1q3/8/q3q3/8/q1q1q3/4K3 b - - 6 7" /> <button>load</button> rooked</div>
+        <div><input pattern="([rnbqkpRNBQKP1-8\/]+){8} [wb] [KQkq\-]+ (-|[a-h][1-8]) \d+ \d+" id="$fen8" value="rnb2bn1/ppp1pppp/7Q/4KQ1r/8/2p3k1/1PPPPPPP/RNBQ1BNR b - - 0 6" /> <button>load</button> pgn</div>
+      </fieldset>
+      <fieldset>
+        <legend>Threefold hash</legend>
+        <label><input id="$thrash" type="text" style="width: 350px"/></label>
+      </fieldset>
+      <fieldset>
+        <legend>PGN move executor</legend>
+        <div>
+          <label>
+            pawn: <input value="e4" type="text" style="width: 50px"/>
+            <button onpointerup="const ply = parsePgnPly(this.parentNode.querySelector('input').value, H.turnWhite); console.log('ply:', ply); const source = findSourceCellFromPgnMove(H, true, ply.piece, ply.to, ply.fromFile, ply.fromRank); console.log('Move is a', ply.piece, 'from', indexToId[source.i], '(', source, ') to', ply.to)">Dry</button>
+            <button onpointerup="const ply = parsePgnPly(this.parentNode.querySelector('input').value, H.turnWhite); const source = findSourceCellFromPgnMove(H, true, ply.piece, ply.to, ply.fromFile, ply.fromRank); makeMove(H, source.i, idToIndex[ply.to], source.n); reflect(H);">Apply</button>
+          </label>
+        </div>
+        <div>
+          <label>
+            king: <input value="Kxd8" type="text" style="width: 50px"/>
+            <button onpointerup="const ply = parsePgnPly(this.parentNode.querySelector('input').value, H.turnWhite); console.log('ply:', ply); const source = findSourceCellFromPgnMove(H, true, ply.piece, ply.to, ply.fromFile, ply.fromRank); console.log('Move is a', ply.piece, 'from', indexToId[source.i], '(', source, ') to', ply.to)">Dry</button>
+            <button onpointerup="const ply = parsePgnPly(this.parentNode.querySelector('input').value, H.turnWhite); const source = findSourceCellFromPgnMove(H, true, ply.piece, ply.to, ply.fromFile, ply.fromRank); makeMove(H, source.i, idToIndex[ply.to], source.n); reflect(H);">Apply</button>
+          </label>
+        </div>
+        <div>
+          <label>
+            queen: <input value="Qf4" type="text" style="width: 50px"/>
+            <button onpointerup="const ply = parsePgnPly(this.parentNode.querySelector('input').value, H.turnWhite); console.log('ply:', ply); const source = findSourceCellFromPgnMove(H, true, ply.piece, ply.to, ply.fromFile, ply.fromRank); console.log('Move is a', ply.piece, 'from', indexToId[source.i], '(', source, ') to', ply.to)">Dry</button>
+            <button onpointerup="const ply = parsePgnPly(this.parentNode.querySelector('input').value, H.turnWhite); const source = findSourceCellFromPgnMove(H, true, ply.piece, ply.to, ply.fromFile, ply.fromRank); makeMove(H, source.i, idToIndex[ply.to], source.n); reflect(H);">Apply</button>
+          </label>
+        </div>
+        <div>
+          <label>
+            queen: <input value="Ra7" type="text" style="width: 50px"/>
+            <button onpointerup="const ply = parsePgnPly(this.parentNode.querySelector('input').value, H.turnWhite); console.log('ply:', ply); const source = findSourceCellFromPgnMove(H, true, ply.piece, ply.to, ply.fromFile, ply.fromRank); console.log('Move is a', ply.piece, 'from', indexToId[source.i], '(', source, ') to', ply.to)">Dry</button>
+            <button onpointerup="const ply = parsePgnPly(this.parentNode.querySelector('input').value, H.turnWhite); const source = findSourceCellFromPgnMove(H, true, ply.piece, ply.to, ply.fromFile, ply.fromRank); makeMove(H, source.i, idToIndex[ply.to], source.n); reflect(H);">Apply</button>
+          </label>
+        </div>
+      </fieldset>
     </fieldset>
   </div>
 
@@ -749,4 +450,5 @@ Rxe7 a5) 30... Qd1# 0-1
 
     $initpgn.onpointerup();
   </script>
+</body>
 </html>

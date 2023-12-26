@@ -1356,3 +1356,19 @@ function getMatrial(G) {
 
   return state;
 }
+
+/**
+ * @param material {{rooks: number, knights: number, pawns: number, bishops: number, queens: number}}}
+ * @returns number
+ */
+function getMaterialPoints(material) {
+  // If a promoted piece replaces a captured piece then it will count for points.
+  // However, a double queen only counts once.
+  return (
+    8 - Math.max(0, Math.min(8, material.pawns)) +
+    (2 - Math.max(0, Math.min(2, material.knights))) * 3 +
+    (2 - Math.max(0, Math.min(2, material.bishops))) * 3 +
+    (2 - Math.max(0, Math.min(2, material.rooks))) * 5 +
+    (1 - Math.max(0, Math.min(1, material.queens))) * 8
+  );
+}

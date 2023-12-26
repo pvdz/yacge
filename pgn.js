@@ -337,7 +337,7 @@ function initPgn(str, debug = false) {
   pgnPlayer = {pgn: pgnGame, timer: undefined, halfTurn: 0, fullTurn: 0};
   reflectPgn();
   $pngcontrols.style.display = 'block';
-  $moveDiv.style.display = 'block';
+  $movePlayer.style.display = 'block';
 }
 
 /**
@@ -448,7 +448,7 @@ function reflectPgn() {
     G.prevFrom = idToIndex[pgnPlayer.pgn.moves[G.wholeTurnCounter - 1]?.white?.fromResolved];
     G.prevTo = idToIndex[pgnPlayer.pgn.moves[G.wholeTurnCounter - 1]?.white?.to];
   }
-  console.log('reflectPgn:', G, fen)
+  //console.log('reflectPgn:', G, fen)
   reflect(G);
   displayPgnMoveList(pgnPlayer.pgn, pgnPlayer.halfTurn, pgnPlayer.fullTurn);
 }
@@ -461,7 +461,7 @@ function deltaPgnPointer(steps) {
 }
 
 function setPgnPointer(halfTurns) {
-  console.log('setPgnPointer:', halfTurns)
+  //console.log('setPgnPointer:', halfTurns)
   if (isNaN(halfTurns)) return;
   pgnPlayer.halfTurn = Math.min(Math.max(0, halfTurns), pgnPlayer.pgn.fenCache.length - 1) || 0;
   pgnPlayer.fullTurn = Math.ceil(pgnPlayer.halfTurn / 2);
