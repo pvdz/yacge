@@ -217,18 +217,23 @@
       background-color: yellow;
     }
     .move_player {
-        display:none;
-        float: left;
-        margin-right: 5px;
-        margin-top: 0;
+      display:none;
+      float: left;
+      margin-right: 5px;
+      margin-top: 0;
     }
     .move_player_controls {
-        display: none; margin: 5px;
+      display: none; margin: 5px;
     }
     .move_player_button {
-        width: 50px;
-        height: 50px;
+      width: 50px;
+      height: 50px;
+      line-height: 40px;
+      margin: 0 5px;
     }
+
+    .fen_input { margin-bottom: 5px; }
+    .fen_current { width: 350px; }
   </style>
 </head>
 <body>
@@ -243,191 +248,7 @@
   <script src="pgn.js"></script>
   <script src="game.js"></script>
   <script src="chess.js"></script>
-
-  <div class="menu">
-    <fieldset>
-      <legend>Current game</legend>
-      <fieldset id="$turn" style="float: left;">
-        <legend>Turn</legend>
-        <div>
-          <div class="turn_block">
-            <label><input class="turn_input" type="radio" id="$turnWhite" name="turn" value="white" checked/><span class="turn_button">white</span></label>
-          </div>
-          <div class="turn_block">
-            <label><input class="turn_input" type="radio" id="$turnBlack" name="turn" value="white"/><span class="turn_button">black</span></label>
-          </div>
-        </div>
-      </fieldset>
-      <fieldset id="$castling">
-        <legend>Castling</legend>
-        <div class="turn_block">
-          <label><input class="turn_input" type="checkbox" id="$castleQueensideWhite" checked/><span class="turn_button dimmable">White<br/>Queenside</span></label>
-        </div>
-        <div class="turn_block">
-          <label><input class="turn_input" type="checkbox" id="$castleKingsideWhite" checked/><span class="turn_button dimmable">White<br/>Kingside</span></label>
-        </div>
-        <div class="turn_block">
-          <label><input class="turn_input" type="checkbox" id="$castleQueensideBlack" checked/><span class="turn_button dimmable">Black<br/>Queenside</span></label></label>
-        </div>
-        <div class="turn_block">
-          <label><input class="turn_input" type="checkbox" id="$castleKingsideBlack" checked/><span class="turn_button dimmable">Black<br/>Kingside</span></label></label>
-        </div>
-      </fieldset>
-      <div style="clear: left;">
-        <label style="display: inline-block; margin: 5px 0;">En passant: <input id="$enpassant" class="enpassanter" pattern="no|[a-hA-H] ?[45]" value="no" onchange="H.enpassant = idToIndex[String(this.value).toLowerCase().replace(/ /g, '')] ?? NO_CELL_I; reflect(H);"/></label>
-        <label style="display: inline-block; margin: 5px 0;">Full turn: <input id="$turns" class="enpassanter" pattern="\d+" value="0" onchange="H.wholeTurnCounter = parseInt(this.value, 10) || 0; reflect(H);"/></label>
-      </div>
-      <div>
-        <label style="display: inline-block; margin: 5px 0;">50 turn: <input id="$turn50" class="enpassanter" pattern="\d+" value="0" onchange="H.fiftyTurnCounter = parseInt(this.value, 10) || 0; reflect(H);"/> <small></small></label>
-        Threefold repeat: <span id="$three">?</span>x
-      </div>
-      <fieldset class="material">
-        <legend>Material</legend>
-        <div>White: <span id="$material_white"></span></div>
-        <div>Black: <span id="$material_black"></span></div>
-      </fieldset>
-    </fieldset>
-    <fieldset id="$movePlayer" class="move_player">
-      <legend>Moves</legend>
-      <div id="$pngcontrols" class="move_player_controls">
-        <button id="$zeropgn" class="move_player_button" onpointerup="fwdPgn(-Infinity);">&lt;&lt;</button>
-        <button id="$backpgn" class="move_player_button" onpointerup="fwdPgn(-1);">&lt;</button>
-        <button id="$togglepgn" class="move_player_button" onpointerup="togglePgn($pgn.value)">▶︎/⏸</button>
-        <button id="$fwdpgn" class="move_player_button" onpointerup="fwdPgn(1);">&gt;</button>
-        <button id="$allpgn" class="move_player_button" onpointerup="fwdPgn(Infinity);">&gt;&gt;</button>
-      </div>
-      <pre id="$moves" style="color:#555;"></pre>
-    </fieldset>
-    <fieldset>
-      <legend>PGN</legend>
-      <textarea id="$pgn">[Event "Third Rosenwald Trophy"]
-[Site "New York, NY USA"]
-[Date "1956.10.17"]
-[EventDate "1956.10.07"]
-[Round "8"]
-[Result "0-1"]
-[White "Donald Byrne"]
-[Black "Robert James Fischer"]
-[ECO "D92"]
-[PlyCount "82"]
-
-1. Nf3 Nf6 2. c4 g6 3. Nc3 Bg7 4. d4 O-O 5. Bf4 d5 6. Qb3 dxc4
-7. Qxc4 c6 8. e4 Nbd7 9. Rd1 Nb6 10. Qc5 Bg4 11. Bg5 Na4 {!} 12.
-Qa3 Nxc3 13. bxc3 Nxe4 14. Bxe7 Qb6 15. Bc4 Nxc3 16. Bc5 Rfe8+
-17. Kf1 Be6 18. Bxb6 Bxc4+ 19. Kg1 Ne2+ 20. Kf1 Nxd4+ 21. Kg1
-Ne2+ 22. Kf1 Nc3+ 23. Kg1 axb6 24. Qb4 Ra4 25. Qxb6 Nxd1 26. h3
-Rxa2 27. Kh2 Nxf2 28. Re1 Rxe1 29. Qd8+ Bf8 30. Nxe1 Bd5 31.
-Nf3 Ne4 32. Qb8 b5 33. h4 h5 34. Ne5 Kg7 35. Kg1 Bc5+ 36. Kf1
-Ng3+ 37. Ke1 Bb4+ 38. Kd1 Bb3+ 39. Kc1 Ne2+ 40. Kb1 Nc3+ 41. Kc1
-Rc2# 0-1
-          </textarea>
-      <button id="$initpgn" onpointerup="initPgn($pgn.value);">load pgn</button>
-      <button id="$dbgpgn" onpointerup="initPgn($pgn.value, true);">debug pgn</button>
-    </fieldset>
-    <fieldset>
-      <style>
-          .fen_input { margin-bottom: 5px; }
-          .fen_current { width: 350px; }
-      </style>
-      <legend>FEN</legend>
-      <div class="fen_input"><nobr><input pattern="([rnbqkpRNBQKP1-8\/]+){8} [wb] [KQkq\-]+ (-|[a-h][1-8]) \d+ \d+" id="$fen_input" style="width: 350px;" /> <button onpointerup="reflect(parseFen($fen_input.value));">load</button></nobr></div>
-      <div><nobr><small>Current:</small> <input class="fen_current" id="$fennow" value="r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1"/></nobr></div>
-    </fieldset>
-    <fieldset onchange="H.promotionDefault = document.querySelector('input[name=promo]:checked').value;">
-      <legend>Pawn promotion</legend>
-      <label><input type="radio" name="promo" value="queen" checked/> queen</label>
-      <label><input type="radio" name="promo" value="rook"/> rook</label>
-      <label><input type="radio" name="promo" value="knight"/> knight</label>
-      <label><input type="radio" name="promo" value="bishop"/> bishop</label>
-      <label><input type="radio" name="promo" value="fail"/> (fail)</label>
-    </fieldset>
-    <fieldset>
-      <legend>Debug</legend>
-      <fieldset onchange="validationMode = document.querySelector('input[name=validation]:checked').value;">
-        <legend>Move validation enforcement</legend>
-        <label><input type="radio" name="validation" value="none"/> none</label>
-        <label><input type="radio" name="validation" value="strict" checked/> strict</label>
-        <label><input type="checkbox" id="$show_pseudo_moves" onchange="reflect(H);"/> Show all pseudo moves</label>
-      </fieldset>
-      <fieldset onchange="currentOverlay = document.querySelector('input[name=underlay]:checked').value; reflect(H);">
-        <legend>Layer view</legend>
-        <label><input type="radio" name="underlay" value="none"/> none</label>
-        <label><input type="radio" name="underlay" value="can_move" checked/> canMove</label>
-        <label><input type="radio" name="underlay" value="filled"/> filled</label>
-        <label><input type="radio" name="underlay" value="white"/> white</label>
-        <label><input type="radio" name="underlay" value="black"/> black</label>
-        <label><input type="radio" name="underlay" value="pawns"/> pawns</label>
-        <label><input type="radio" name="underlay" value="kings"/> kings</label>
-        <label><input type="radio" name="underlay" value="queens"/> queens</label>
-        <label><input type="radio" name="underlay" value="knights"/> knights</label>
-        <label><input type="radio" name="underlay" value="bishops"/> bishops</label>
-        <label><input type="radio" name="underlay" value="rooks"/> rooks</label>
-        <label><input type="radio" name="underlay" value="is_checked_white"/> isChecked.white</label>
-        <label><input type="radio" name="underlay" value="is_checked_black"/> isChecked.black</label>
-      </fieldset>
-      <fieldset onchange="$board.classList.remove('cell_id_coord', 'cell_id_index', 'cell_id_both', 'cell_id_none'); $board.classList.add(document.querySelector('input[name=cell_id]:checked').value);">
-        <legend>Cell ID hint</legend>
-        <label><input type="radio" name="cell_id" value="cell_id_none" checked/> none</label>
-        <label><input type="radio" name="cell_id" value="cell_id_index"/> index</label>
-        <label><input type="radio" name="cell_id" value="cell_id_coord"/> coord</label>
-        <label><input type="radio" name="cell_id" value="cell_id_both"/> both</label>
-      </fieldset>
-      <fieldset onpointerup="autoArrowClear = document.querySelector('input[name=auto_arrow_remove]:checked').value;">
-        <legend>Arrow clearing</legend>
-        <div><label><input type="radio" name="auto_arrow_remove" value="none"/> never</label></div>
-        <div><label><input type="radio" name="auto_arrow_remove" value="select" checked/> after cell select</label></div>
-        <div><label><input type="radio" name="auto_arrow_remove" value="move"/> after any move</label></div>
-        <div style="margin-top:5px;"><button onpointerup="clearArrows();">Clear arrows now</button></div>
-      </fieldset>
-      <fieldset id="$fens">
-        <legend>Presets</legend>
-        <div><input pattern="([rnbqkpRNBQKP1-8\/]+){8} [wb] [KQkq\-]+ (-|[a-h][1-8]) \d+ \d+" id="$fen_start" value="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" /> <button>start</button></div>
-        <div><input pattern="([rnbqkpRNBQKP1-8\/]+){8} [wb] [KQkq\-]+ (-|[a-h][1-8]) \d+ \d+" id="$fen2" value="rnbq1bnr/pppppppp/8/4Q3/3k4/8/PPPPPPPP/RNB1KBNR b KQ - 0 1" /> <button>load</button> queen ray check over king shadow</div>
-        <div><input pattern="([rnbqkpRNBQKP1-8\/]+){8} [wb] [KQkq\-]+ (-|[a-h][1-8]) \d+ \d+" id="$fen3" value="r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1" /> <button>load</button> castling</div>
-        <div><input pattern="([rnbqkpRNBQKP1-8\/]+){8} [wb] [KQkq\-]+ (-|[a-h][1-8]) \d+ \d+" id="$fen4" value="rnbqk1nr/pppppppp/4b3/8/8/4B3/PPPPPPPP/RN1QKBNR b KQkq - 0 1" /> <button>load</button> regression</div>
-        <div><input pattern="([rnbqkpRNBQKP1-8\/]+){8} [wb] [KQkq\-]+ (-|[a-h][1-8]) \d+ \d+" id="$fen5" value="rnbq1bnr/ppp2ppp/8/k2pP3/p7/8/PPPP1PPP/RNBQKBNR b - d5 0 2" /> <button>load</button> en-passant</div>
-        <div><input pattern="([rnbqkpRNBQKP1-8\/]+){8} [wb] [KQkq\-]+ (-|[a-h][1-8]) \d+ \d+" id="$fen6" value="r1p1k1n1/1p1p1p1p/p1b1p1p1/1n1q1b1r/R1B1K1N1/1P1P1P1P/P1P1P1P1/1N1Q1B1R b q - 2 10" /> <button>load</button> stress?</div>
-        <div><input pattern="([rnbqkpRNBQKP1-8\/]+){8} [wb] [KQkq\-]+ (-|[a-h][1-8]) \d+ \d+" id="$fen7" value="4k3/8/q1q1q3/8/q3q3/8/q1q1q3/4K3 b - - 6 7" /> <button>load</button> rooked</div>
-        <div><input pattern="([rnbqkpRNBQKP1-8\/]+){8} [wb] [KQkq\-]+ (-|[a-h][1-8]) \d+ \d+" id="$fen8" value="rnb2bn1/ppp1pppp/7Q/4KQ1r/8/2p3k1/1PPPPPPP/RNBQ1BNR b - - 0 6" /> <button>load</button> pgn</div>
-      </fieldset>
-      <fieldset>
-        <legend>Threefold hash</legend>
-        <label><input id="$thrash" type="text" style="width: 350px"/></label>
-      </fieldset>
-      <fieldset>
-        <legend>PGN move executor</legend>
-        <div>
-          <label>
-            pawn: <input value="e4" type="text" style="width: 50px"/>
-            <button onpointerup="const ply = parsePgnPly(this.parentNode.querySelector('input').value, H.turnWhite); console.log('ply:', ply); const source = findSourceCellFromPgnMove(H, true, ply.piece, ply.to, ply.fromFile, ply.fromRank); console.log('Move is a', ply.piece, 'from', indexToId[source.i], '(', source, ') to', ply.to)">Dry</button>
-            <button onpointerup="const ply = parsePgnPly(this.parentNode.querySelector('input').value, H.turnWhite); const source = findSourceCellFromPgnMove(H, true, ply.piece, ply.to, ply.fromFile, ply.fromRank); makeMove(H, source.i, idToIndex[ply.to], source.n); reflect(H);">Apply</button>
-          </label>
-        </div>
-        <div>
-          <label>
-            king: <input value="Kxd8" type="text" style="width: 50px"/>
-            <button onpointerup="const ply = parsePgnPly(this.parentNode.querySelector('input').value, H.turnWhite); console.log('ply:', ply); const source = findSourceCellFromPgnMove(H, true, ply.piece, ply.to, ply.fromFile, ply.fromRank); console.log('Move is a', ply.piece, 'from', indexToId[source.i], '(', source, ') to', ply.to)">Dry</button>
-            <button onpointerup="const ply = parsePgnPly(this.parentNode.querySelector('input').value, H.turnWhite); const source = findSourceCellFromPgnMove(H, true, ply.piece, ply.to, ply.fromFile, ply.fromRank); makeMove(H, source.i, idToIndex[ply.to], source.n); reflect(H);">Apply</button>
-          </label>
-        </div>
-        <div>
-          <label>
-            queen: <input value="Qf4" type="text" style="width: 50px"/>
-            <button onpointerup="const ply = parsePgnPly(this.parentNode.querySelector('input').value, H.turnWhite); console.log('ply:', ply); const source = findSourceCellFromPgnMove(H, true, ply.piece, ply.to, ply.fromFile, ply.fromRank); console.log('Move is a', ply.piece, 'from', indexToId[source.i], '(', source, ') to', ply.to)">Dry</button>
-            <button onpointerup="const ply = parsePgnPly(this.parentNode.querySelector('input').value, H.turnWhite); const source = findSourceCellFromPgnMove(H, true, ply.piece, ply.to, ply.fromFile, ply.fromRank); makeMove(H, source.i, idToIndex[ply.to], source.n); reflect(H);">Apply</button>
-          </label>
-        </div>
-        <div>
-          <label>
-            queen: <input value="Ra7" type="text" style="width: 50px"/>
-            <button onpointerup="const ply = parsePgnPly(this.parentNode.querySelector('input').value, H.turnWhite); console.log('ply:', ply); const source = findSourceCellFromPgnMove(H, true, ply.piece, ply.to, ply.fromFile, ply.fromRank); console.log('Move is a', ply.piece, 'from', indexToId[source.i], '(', source, ') to', ply.to)">Dry</button>
-            <button onpointerup="const ply = parsePgnPly(this.parentNode.querySelector('input').value, H.turnWhite); const source = findSourceCellFromPgnMove(H, true, ply.piece, ply.to, ply.fromFile, ply.fromRank); makeMove(H, source.i, idToIndex[ply.to], source.n); reflect(H);">Apply</button>
-          </label>
-        </div>
-      </fieldset>
-    </fieldset>
-  </div>
-
+  <script src="menu.js"></script>
   <script src="ui.js"></script>
 
   <script>
@@ -448,7 +269,7 @@ Rc2# 0-1
     //recordBoardState(H);
     //reflect(H);
 
-    $initpgn.onpointerup();
+    initPgn($pgn.value);
   </script>
 </body>
 </html>

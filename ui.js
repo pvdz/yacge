@@ -271,6 +271,5 @@ function clearArrows() {
 
 
 
-$castling.addEventListener('change', e => { if (e.target.id) { H[e.target.id.slice(1)] = !H[e.target.id.slice(1)]; reflect(H); } });
-$fens.addEventListener('pointerup', e => { if (e.target.previousElementSibling?.value) { H = parseFen(e.target.previousElementSibling.value); reflect(H); } });
+//$castling.addEventListener('change', e => { if (e.target.id) { H[e.target.id.slice(1)] = !H[e.target.id.slice(1)]; reflect(H); } });
 

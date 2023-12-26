@@ -35,6 +35,20 @@ What you see is what you get. No dependencies, no installation or anything. Just
 
 Alternatively you could fire up a local webserver and serve it that way, it doesn't really matter tbh.
 
+# How
+
+Aside from vanilla web tech and zero dependencies (at the time of writing), the chess engine uses "bitboards", ht https://www.chessprogramming.org/Bitboards for inspiration.
+
+The core representation is a set of 8 "layers". One for each color and one for each piece. And putting these layers on top of each other, as bit masks, you can get a mask of pieces of that color.
+
+There is no other internal representation of the board for the sake of rule validation or evaluation.
+
+This means, for example, that material evaluation involves walking each of the 64 cells and bit testing whether the cell is filled, and if so, which of the pieces is occupying it and then which color. It's a bit expensive but since it's capped at 64 cells it's not so bad.
+
+On the other side, things like knight checks are super simple: `White & VALID_KNIGHT_MOVES[x]`. This tells you whether white can cover/attack cell x and even where these knights are.
+
+I'm aware that there's more efficient ways to do the "ray scans" for bishops, rooks, and queens using bitboards. I currently haven't invested too much time into that since the worst case number of cells is 25 for a queen or 14 for a rook / bishop. And the amortized count is far lower than that. While interesting, it was not the kind problem I wanted to solve here :)
+
 # Why
 
 I wanted to train a computer to play chess.
@@ -66,6 +80,7 @@ For the ultimate "why", the answer is much simpler: cause I wanted to :) It's fu
 - PGN import hasn't been thoroughly tested. Probably needs a fix or two to be more generic.
 - Touch drag of pieces needs to cancel event, currently not useful
 - Is castling state tracking broken when playing back PGN? In general? Or just a visual glitch?
+- When scrolled the drag is broken (ugh)
 
 # Future
 
