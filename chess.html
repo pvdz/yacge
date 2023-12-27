@@ -237,39 +237,23 @@
   </style>
 </head>
 <body>
-  <script src="board.js"></script>
+  <script src="utils.js"></script>
   <script src="constants.js"></script>
   <script src="parser.js"></script>
   <script src="serialize.js"></script>
+
   <script src="single-bit.js"></script>
   <script src="pawns.js"></script>
   <script src="knights.js"></script>
   <script src="kings.js"></script>
+
   <script src="pgn.js"></script>
-  <script src="game.js"></script>
-  <script src="chess.js"></script>
+  <script src="board.js"></script>
   <script src="menu.js"></script>
+  <script src="chess.js"></script>
+
   <script src="ui.js"></script>
 
-  <script>
-    //document.querySelector('input[name=underlay][value=can_move]').checked = true;
-    //document.querySelector('input[name=cell_id][value=cell_id_none]').checked = true;
-    //document.querySelector('input[name=validation][value=none]').checked = true;
-
-    currentOverlay = document.querySelector('input[name=underlay]:checked').value;
-    validationMode = document.querySelector('input[name=validation]:checked').value;
-    autoArrowClear = document.querySelector('input[name=auto_arrow_remove]:checked').value;
-    //$board.classList.remove('cell_id_coord', 'cell_id_index', 'cell_id_both', 'cell_id_none');
-    $board.classList.add(document.querySelector('input[name=cell_id]:checked').value);
-
-    //setCurrent('e5');
-    //setTarget('d6');
-    //H = parseFen($fen8.value);
-    //H.promotionDefault = document.querySelector('input[name=validation]:checked').value;
-    //recordBoardState(H);
-    //reflect(H);
-
-    initPgn($pgn.value);
-  </script>
+  <script src="game.js"></script>
 </body>
 </html>

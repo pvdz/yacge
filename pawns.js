@@ -656,7 +656,6 @@ const whitePawnsThatCanCaptureOn = [
   `,
 ].map(s => BigInt(`0b${s.replace('x', '0').replace(/\s/g, '')}`));
 
-
 // The pawn captures for black are the same but in a vertically mirrored position.
 // To flip the board we can literally reverse the bits. We then have to reverse the array such that the index-to-pawn-on-index mapping matches.
 // We'll do this in a hacky quick way here because why not.
@@ -1330,6 +1329,7 @@ const whitePawnsThatCanMoveTo = [
     00000000
   `,
 ].map(s => BigInt(`0b${s.replace('x', '0').replace(/\s/g, '')}`));
+
 /**
  * @type {BigInt[]}
  */

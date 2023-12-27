@@ -1,7 +1,3 @@
-function assert(a, b, desc) {
-  if (a !== b) throw new Error(desc);
-}
-
 // Some inspiration: https://www.chessprogramming.org/Bitboards
 
 /**
@@ -170,7 +166,7 @@ function makeMove(G, fromi, toi, fromn = 1n << fromi, ton = 1n << toi, forReal =
     recordBoardState(G);
     G.prevFrom = fromi;
     G.prevTo = toi;
-    if (autoArrowClear === 'move') clearArrows();
+    if (S.autoArrowClear === 'move') clearArrows();
   }
 }
 
@@ -602,7 +598,7 @@ function canMove(G, fromi, toi, fromn = 1n << fromi, ton = 1n << toi, ignoreTurn
     return 'bad';
   }
 
-  if (currentTarget_i !== NO_CELL_I && currentTarget_i !== toi) {
+  if (L.currentTarget_i !== NO_CELL_I && L.currentTarget_i !== toi) {
     return 'bad';
   }
 

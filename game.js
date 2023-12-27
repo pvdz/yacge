@@ -25,115 +25,104 @@
  * @property {Map<string, number>} threefold This one should only be updated when making a real move...
  */
 
-const black = BigInt('0b'+[
-  1, 1, 1, 1, 1, 1, 1, 1,
-  1, 1, 1, 1, 1, 1, 1, 1,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-].join(''));
-
-const white = BigInt('0b'+[
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  1, 1, 1, 1, 1, 1, 1, 1,
-  1, 1, 1, 1, 1, 1, 1, 1,
-].join(''));
-
-const rooks = BigInt('0b'+[
-  1, 0, 0, 0, 0, 0, 0, 1,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  1, 0, 0, 0, 0, 0, 0, 1,
-].join(''));
-
-const bishops = BigInt('0b'+[
-  0, 0, 1, 0, 0, 1, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 1, 0, 0, 1, 0, 0,
-].join(''));
-
-const knights = BigInt('0b'+[
-  0, 1, 0, 0, 0, 0, 1, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 1, 0, 0, 0, 0, 1, 0,
-].join(''));
-
-const queens = BigInt('0b'+[
-  0, 0, 0, 1, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 1, 0, 0, 0, 0,
-].join(''));
-
-const kings = BigInt('0b'+[
-  0, 0, 0, 0, 1, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 1, 0, 0, 0,
-].join(''));
-
-const pawns = BigInt('0b'+[
-  0, 0, 0, 0, 0, 0, 0, 0,
-  1, 1, 1, 1, 1, 1, 1, 1,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  1, 1, 1, 1, 1, 1, 1, 1,
-  0, 0, 0, 0, 0, 0, 0, 0,
-].join(''));
+/**
+ * The state data for the whole web page
+ *
+ * @typedef GlobalState {Object}
+ * @property {'none' | 'filled' | 'white' | 'black' | 'pawns' | 'kings' | 'queens' | 'knights' | 'bishops' | 'rooks' | 'can_move' | 'is_checked_white' | 'is_checked_black' } currentOverlay (Global default, local state can override this)
+ * @property {'none' | 'select' | 'move'} autoArrowClear Maybe we can allow individual boards to override this but why
+ */
 
 /**
- * Note: this is global UI state and will be overwritten by the state that is passed on to reflect() (and realReflect())
- * @type {Game}
+ * The state data for one board and everything around it.
+ *
+ * @typedef LocalState {Object}
+ * @property {Game} G The implicit game state for this board
+ * @property {Element[]} cellDivs First element is h1, last element is a8, going 1-8 then a-h
+ * @property {'' | 'none' | 'filled' | 'white' | 'black' | 'pawns' | 'kings' | 'queens' | 'knights' | 'bishops' | 'rooks' | 'can_move' | 'is_checked_white' | 'is_checked_black' } currentOverlay (Overrides the global value)
+ * @property {Map<string, Element>} arrowMap
+ * @property {BigInt} currentCell_i Current selection cell index
+ * @property {BigInt} currentCell_n Current selection cell bit
+ * @property {BigInt} currentTarget_i Only for debugging. Will ignore any other cell when doing attack checks etc.
+ * @property {'none' | 'strict'} validationMode
+ * @property {number} reflectTimer
  */
-let H = {
-  turnWhite: true,
-  castleKingsideWhite: true,
-  castleQueensideWhite: true,
-  castleKingsideBlack: true,
-  castleQueensideBlack: true,
-  enpassant: NO_CELL_I,
-  fiftyTurnCounter: 0,
-  wholeTurnCounter: 1,
-  promotionDefault: 'queen',
-  black,
-  white,
-  rooks,
-  bishops,
-  knights,
-  queens,
-  kings,
-  pawns,
-  threefold: new Map,
+
+/**
+ * Pointer related state. I like mouse state better :shrug:
+ *
+ * @typedef MouseState {Object}
+ * @property {boolean} pointerDownStatus
+ * @property {number} pointerDownX
+ * @property {number} pointerDownY
+ * @property {boolean} deselectCell Used to determine whether the cell should be deselected on pointerup
+ * @property {BigInt} pointerDownCellI
+ * @property {'lmb' | 'mmb' | 'rmb'} pointerDownButton
+ * @property {BigInt} pointerOverCellI
+ * @property {boolean} pointerDragging
+ * @property {undefined|Element} currentDragIcon
+ * @property {Element} currentArrow
+ */
+
+
+/**
+ * @type {GlobalState}
+ */
+const S = {
+  currentOverlay: 'can_move',
+  autoArrowClear: 'select',
 };
+
+/**
+ * (Global)
+ * @type {MouseState}
+ */
+const M = {
+  pointerDownStatus: false,
+  pointerDownX: 0,
+  pointerDownY: 0,
+  pointerDownCellI: NO_CELL_I,
+  pointerDownButton: 'lmb',
+  pointerOverCellI: NO_CELL_I,
+  currentArrow: undefined,
+  pointerDragging: false,
+  currentDragIcon: undefined,
+  deselectCell: false,
+};
+
+createBoard();
+createMenu();
+
+/**
+ * (This will later allow us to spawn multiple boards, but for now it's sort of global)
+ *
+ * @type {LocalState}
+ */
+const L = {
+  G: parseFen(FEN_NEW_GAME),
+  currentOverlay: '',
+  cellDivs: [ // note: transposed. first element is the least significant bit (bottom right) is H1
+    $h1, $g1, $f1, $e1, $d1, $c1, $b1, $a1,
+    $h2, $g2, $f2, $e2, $d2, $c2, $b2, $a2,
+    $h3, $g3, $f3, $e3, $d3, $c3, $b3, $a3,
+    $h4, $g4, $f4, $e4, $d4, $c4, $b4, $a4,
+    $h5, $g5, $f5, $e5, $d5, $c5, $b5, $a5,
+    $h6, $g6, $f6, $e6, $d6, $c6, $b6, $a6,
+    $h7, $g7, $f7, $e7, $d7, $c7, $b7, $a7,
+    $h8, $g8, $f8, $e8, $d8, $c8, $b8, $a8,
+  ],
+  arrowMap: new Map,
+  validationMode: 'strict',
+  reflectTimer: 0,
+  currentCell_i: NO_CELL_I,
+  currentCell_n: NO_CELL,
+  currentTarget_i: NO_CELL_I,
+
+
+  // TODO next:
+  // - history
+  // - alt-lines?
+};
+
+//initPgn($pgn.value);
+reflect(L.G);

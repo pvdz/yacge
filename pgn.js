@@ -335,6 +335,7 @@ function initPgn(str, debug = false) {
   }
 
   pgnPlayer = {pgn: pgnGame, timer: undefined, halfTurn: 0, fullTurn: 0};
+
   reflectPgn();
   $pngcontrols.style.display = 'block';
   $movePlayer.style.display = 'block';
@@ -356,8 +357,7 @@ function pgnPreComputeStep(G, pgnGame, ply, halfGameTurn, fullGameTurn, debug = 
   ply.final = `${ply.piece} from ${indexToId[fromi]} to ${indexToId[toi]}`;
   ply.fromResolved = indexToId[fromi];
   makeMove(G, fromi, toi, fromn, ton, true, {B:'bishop', N: 'knight', R: 'rook', Q: 'queen'}[ply.promote] ?? 'queen');
-  const fen = getFenString(G);
-  pgnGame.fenCache[halfGameTurn] = fen;
+  pgnGame.fenCache[halfGameTurn] = getFenString(G);
 }
 
 /**

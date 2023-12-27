@@ -87,8 +87,8 @@ function menuCastling() {
 
   castling.addEventListener('change', e => {
     if (e.target.id) {
-      H[e.target.id.slice(1)] = !H[e.target.id.slice(1)];
-      reflect(H);
+      L.G[e.target.id.slice(1)] = !L.G[e.target.id.slice(1)];
+      reflect(L.G);
     }
   });
 
@@ -107,8 +107,8 @@ function menuEnPassant() {
   label.appendChild(input);
 
   input.addEventListener('change', e => {
-    H.enpassant = idToIndex[String(e.target.value).toLowerCase().replace(/ /g, '')] ?? NO_CELL_I;
-    reflect(H);
+    L.G.enpassant = idToIndex[String(e.target.value).toLowerCase().replace(/ /g, '')] ?? NO_CELL_I;
+    reflect(L.G);
   });
 
   return label;
@@ -126,8 +126,7 @@ function menuFullTurn() {
   label.appendChild(input);
 
   input.addEventListener('change', e => {
-    H.wholeTurnCounter = parseInt(e.target.value, 10) || 0;
-    //reflect(H);
+    L.G.wholeTurnCounter = parseInt(e.target.value, 10) || 0;
   });
 
   return label;
@@ -145,8 +144,7 @@ function menuFiftyTurnRule() {
   label.appendChild(input);
 
   input.addEventListener('change', e => {
-    H.fiftyTurnCounter = parseInt(e.target.value, 10) || 0;
-    //reflect(H);
+    L.G.fiftyTurnCounter = parseInt(e.target.value, 10) || 0;
   });
 
   return label;
@@ -311,7 +309,9 @@ function menuPromotion() {
   promo.appendChild(labeledInput('radio', 'promo', 'knight', ' knight'));
   promo.appendChild(labeledInput('radio', 'promo', 'fail', ' (fail)'));
 
-  promo.addEventListener('change', () => H.promotionDefault = document.querySelector('input[name=promo]:checked').value);
+  promo.addEventListener('change', () => {
+    L.G.promotionDefault = document.querySelector('input[name=promo]:checked').value;
+  });
 
   return promo;
 }
@@ -319,15 +319,15 @@ function menuPromotion() {
 function menuValidation() {
   const fs = fieldset('Move validation enforcement');
 
-  fs.appendChild(labeledInput('radio', 'validation', 'none', ' none'));
-  fs.appendChild(labeledInput('radio', 'validation', 'strict', ' strict', undefined, true));
+  fs.appendChild(labeledInput('radio', 'validation', 'none', ' none '));
+  fs.appendChild(labeledInput('radio', 'validation', 'strict', ' strict ', undefined, true));
   const showAll = fs.appendChild(labeledInput('checkbox', '', '', ' Show all pseudo moves', '$show_pseudo_moves', true));
 
   fs.addEventListener('change', e => {
-    validationMode = document.querySelector('input[name=validation]:checked').value;
+    L.validationMode = document.querySelector('input[name=validation]:checked').value;
   });
 
-  showAll.addEventListener('change', e => reflect(H));
+  showAll.addEventListener('change', e => reflect(L.G));
 
   return fs;
 }
@@ -362,8 +362,8 @@ function menuLayers() {
   layers.appendChild(labeledInput('radio', 'underlay', 'is_checked_black', ' isChecked.black'));
 
   layers.addEventListener('change', e => {
-    currentOverlay = document.querySelector('input[name=underlay]:checked').value;
-    reflect(H);
+    S.currentOverlay = document.querySelector('input[name=underlay]:checked').value;
+    reflect(L.G);
   });
 
   return layers;
@@ -393,7 +393,7 @@ function menuArrowControl() {
   layers.appendChild(labeledInput('radio', 'auto_arrow_remove', 'move', ' after any move'));
 
   layers.addEventListener('change', e => {
-    autoArrowClear = document.querySelector('input[name=auto_arrow_remove]:checked').value;
+    S.autoArrowClear = document.querySelector('input[name=auto_arrow_remove]:checked').value;
   });
 
   const button = document.createElement('button');
@@ -459,9 +459,9 @@ function menuPly() {
   const dry = document.createElement('button');
   dry.innerHTML = 'dry';
   dry.addEventListener('pointerup', e => {
-    const ply = parsePgnPly(e.target.parentNode.querySelector('input').value, H.turnWhite);
+    const ply = parsePgnPly(e.target.parentNode.querySelector('input').value, L.G.turnWhite);
     console.log('ply:', ply);
-    const source = findSourceCellFromPgnMove(H, true, ply.piece, ply.to, ply.fromFile, ply.fromRank);
+    const source = findSourceCellFromPgnMove(L.G, true, ply.piece, ply.to, ply.fromFile, ply.fromRank);
     console.log('Move is a', ply.piece, 'from', indexToId[source.i], '(', source, ') to', ply.to);
   });
   ply.appendChild(dry);
@@ -469,10 +469,10 @@ function menuPly() {
   const wet = document.createElement('button');
   wet.innerHTML = 'Apply';
   wet.addEventListener('pointerup', e => {
-    const ply = parsePgnPly(e.target.parentNode.querySelector('input').value, H.turnWhite);
-    const source = findSourceCellFromPgnMove(H, true, ply.piece, ply.to, ply.fromFile, ply.fromRank);
-    makeMove(H, source.i, idToIndex[ply.to], source.n);
-    reflect(H);
+    const ply = parsePgnPly(e.target.parentNode.querySelector('input').value, L.G.turnWhite);
+    const source = findSourceCellFromPgnMove(L.G, true, ply.piece, ply.to, ply.fromFile, ply.fromRank);
+    makeMove(L.G, source.i, idToIndex[ply.to], source.n);
+    reflect(L.G);
   });
   ply.appendChild(wet);
 
@@ -493,7 +493,7 @@ function menuDebug() {
   return debug;
 }
 
-function createMenu() {
+function createMenuHtml() {
   const menu = div('menu');
 
   menu.appendChild(menuCurrentGame());
@@ -506,5 +506,7 @@ function createMenu() {
   return menu;
 }
 
-const menu = createMenu();
-document.body.appendChild(menu);
+function createMenu() {
+  const menu = createMenuHtml();
+  document.body.appendChild(menu);
+}

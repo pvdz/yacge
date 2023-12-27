@@ -143,7 +143,7 @@ function getFenString(G) {
   // TODO: improve this replace by just buffering the empty cells instead
   fenState = fenState.replace(/ +/g, (str) => String(str.length));
   fenState += ' ' + (G.turnWhite ? 'w' : 'b');
-  fenState += ' ' + (((H.castleKingsideWhite ? 'K' : '') + (H.castleQueensideWhite ? 'Q' : '') + (H.castleKingsideBlack ? 'k' : '') + (H.castleQueensideBlack ? 'q' : '')) || '-');
+  fenState += ' ' + (((G.castleKingsideWhite ? 'K' : '') + (G.castleQueensideWhite ? 'Q' : '') + (G.castleKingsideBlack ? 'k' : '') + (G.castleQueensideBlack ? 'q' : '')) || '-');
   fenState += ' ' + (G.enpassant === NO_CELL_I ? '-' : indexToId[G.enpassant]);
   fenState += ' ' + String(G.fiftyTurnCounter);
   fenState += ' ' + String(G.wholeTurnCounter);
