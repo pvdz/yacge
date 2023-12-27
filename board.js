@@ -17,7 +17,7 @@ function cellHtml(id, index, i, j) {
 }
 
 /**
- * @returns {{cellDivs: Element[], root: Element}}
+ * @returns {{cellDivs: Element[], root: Element, board: Element}}
  */
 function createBoardHtml() {
   const outer = div('board_outer');
@@ -38,7 +38,7 @@ function createBoardHtml() {
   });
   FILE_HEADERS.forEach(str => inner.appendChild(div('gutter_label')).innerHTML = str);
 
-  return {root: outer, cellDivs: cellDivs.reverse()};
+  return {root: outer, cellDivs: cellDivs.reverse(), board: inner};
 }
 
 /**
@@ -46,7 +46,7 @@ function createBoardHtml() {
  * @returns {LocalState}
  */
 function createBoard(uid) {
-  const {root: board, cellDivs} = createBoardHtml();
+  const {root: board, board: inner, cellDivs} = createBoardHtml();
   document.body.appendChild(board);
 
   const L = {
@@ -55,6 +55,7 @@ function createBoard(uid) {
     currentOverlay: '',
     html: {
       root: board,
+      board: inner,
       cells: cellDivs,
     },
     arrowMap: new Map,

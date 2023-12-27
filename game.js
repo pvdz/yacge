@@ -54,6 +54,7 @@
  *
  * @typedef Lhtml {Object}
  * @property {Element} root
+ * @property {Element} board
  * @property {Element[]} cells First element of cells is h1, last element is a8, going 1-8 then a-h
  * @property {Element} castleQueensideWhite
  * @property {Element} castleKingsideWhite
@@ -89,6 +90,7 @@
  * @property {BigInt} currentTarget_i Only for debugging. Will ignore any other cell when doing attack checks etc.
  * @property {'none' | 'strict'} validationMode
  * @property {number} reflectTimer
+ * @property {boolean} flipped
  */
 
 

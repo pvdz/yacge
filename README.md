@@ -68,7 +68,6 @@ For the ultimate "why", the answer is much simpler: cause I wanted to :) It's fu
 - Properly record moves made into a move list, it's currently only built to support playback of PGN games, which feels kind of backwards now
   - This includes the ability to create an alternative move while in the middle of some game and creating and recording an alternative line
 - Add stockfish to it? Or some other established open source engine, to play moves and what not.
-- Flip board (black down)
 - Show names when playing back PGN? Maybe more meta data.
 - Support and show certain markers like `?!` etc.
 

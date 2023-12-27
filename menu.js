@@ -113,8 +113,19 @@ function labeledInput(type, name, value, text, id, checked = false) {
  * @returns {Element}
  */
 function menuTurn(L) {
-  const turn = fieldset('Turn');
+  const turn = fieldset('Turn ');
   turn.style = 'float: left';
+
+  const sml = document.createElement('small');
+  sml.innerHTML = '(flip board)';
+  sml.addEventListener('pointerup', () => {
+    // Very rudimentary but... super effective :D
+    for (let i = L.html.board.children.length - 1; i>=0; --i) {
+      L.html.board.appendChild(L.html.board.children[i]);
+    }
+  });
+  // Bit of a hack but the whole link thing is a hack (:
+  turn.children[0].appendChild(sml);
 
   const [labelW, inputW] = toggle('turn_input', 'radio', '', `turn_${L.uid}`, 'white', true, 'turn_button', 'white');
   div('turn_block', turn, labelW);
