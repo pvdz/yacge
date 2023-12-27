@@ -67,8 +67,6 @@ For the ultimate "why", the answer is much simpler: cause I wanted to :) It's fu
   - I'd really love to create a graph based on this like you get from chess.com
 - Properly record moves made into a move list, it's currently only built to support playback of PGN games, which feels kind of backwards now
   - This includes the ability to create an alternative move while in the middle of some game and creating and recording an alternative line
-- Properly abstract the code so you can have multiple boards in the same page
-  - (The point of this is to support a neural network learning the game and I want to show it play multiple games at once)
 - Add stockfish to it? Or some other established open source engine, to play moves and what not.
 - Flip board (black down)
 - Show names when playing back PGN? Maybe more meta data.
@@ -78,9 +76,8 @@ For the ultimate "why", the answer is much simpler: cause I wanted to :) It's fu
 
 - Looks like I created arrows at a fixed width, even though the board scales with available window space. Oops
 - PGN import hasn't been thoroughly tested. Probably needs a fix or two to be more generic.
-- Touch drag of pieces needs to cancel event, currently not useful
 - Is castling state tracking broken when playing back PGN? In general? Or just a visual glitch?
-- When scrolled the drag is broken (ugh)
+- When scrolled the drag is broken (ugh). Needs scroll offset adjustment I think.
 
 # Future
 

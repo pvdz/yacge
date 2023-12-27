@@ -72,7 +72,10 @@ function createBoard(uid) {
 
   board.addEventListener('contextmenu', e => e.preventDefault()); // hide context menu
   board.addEventListener('pointerdown', e => {
+    e.target.releasePointerCapture(e.pointerId); // Must release touch events otherwise e.target won't update onpointerup (ht @@DIYFractal)
     e.preventDefault();
+
+    console.log('pointerdown-->', e);
 
     M.pointerDownStatus = true;
     M.pointerDownX = e.clientX;
@@ -84,8 +87,6 @@ function createBoard(uid) {
 
     switch (e.button) {
       case 0: { // lmb
-        console.log('pointerdown, lmb:', e);
-
         // We deselect the cell if we clicked on the same cell without dragging it
         const wasSelected = M.pointerDownCellI === L.currentCell_i;
         M.deselectCell = cell === '' ? true : wasSelected;
@@ -127,6 +128,9 @@ function createBoard(uid) {
     return false;
   });
   board.addEventListener('pointermove', e => {
+    e.preventDefault();
+    // console.log('pointermove-->', e)
+
     const old = M.pointerOverCellI;
     M.deselectCell = false;
     M.pointerOverCellI = idToIndex[e.target.id?.slice(1)];
@@ -179,6 +183,7 @@ function createBoard(uid) {
   });
   board.addEventListener('pointerup', e => {
     e.preventDefault();
+    // console.log('pointerup-->', e)
 
     M.pointerDragging = false;
     M.pointerDownStatus = false;
