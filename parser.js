@@ -142,7 +142,3 @@ function parseFen(fen) {
     threefold: new Map,
   };
 }
-
-function initFen(str) {
-  reflect(parseFen(str));
-}

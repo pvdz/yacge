@@ -23,7 +23,6 @@ function createBoardHtml() {
   const outer = div('board_outer');
   const middle = div('board_middle', outer)
   const inner = div('board_inner', middle);
-  //inner.id = '$board';
 
   const cellDivs = [];
 
@@ -43,14 +42,16 @@ function createBoardHtml() {
 }
 
 /**
+ * @param {string} [uid] A unique id for this LocalState. Used, for example, to namespace radio button names (which are otherwise global). Defaults to a Math.random value.
  * @returns {LocalState}
  */
-function createBoard() {
+function createBoard(uid) {
   const {root: board, cellDivs} = createBoardHtml();
   document.body.appendChild(board);
 
   const L = {
     G: parseFen(FEN_NEW_GAME),
+    uid: uid || String(Math.random()).slice(2),
     currentOverlay: '',
     html: {
       root: board,
@@ -88,17 +89,17 @@ function createBoard() {
         // We deselect the cell if we clicked on the same cell without dragging it
         const wasSelected = M.pointerDownCellI === L.currentCell_i;
         M.deselectCell = cell === '' ? true : wasSelected;
-        if (!wasSelected && S.autoArrowClear) clearArrows();
+        if (!wasSelected && S.autoArrowClear) clearArrows(L);
         if (((L.G.black | L.G.white) & (1n << M.pointerDownCellI)) === 0n) {
           // Clicking on an empty cell should not select it
           M.deselectCell = false;
           L.currentCell_i = NO_CELL_I;
           L.currentCell_n = NO_CELL;
         } else {
-          setCurrent(e.target.id?.slice(1));
+          setCurrent(L, e.target.id?.slice(1));
         }
 
-        reflect(L.G);
+        reflect(L);
         const {color, icon} = getPieceIconAt(L.G, 1n << M.pointerDownCellI);
         if (icon) {
           M.currentDragIcon = board.appendChild(document.createElement('div'));
@@ -181,7 +182,7 @@ function createBoard() {
 
     M.pointerDragging = false;
     M.pointerDownStatus = false;
-    reflect(L.G);
+    reflect(L);
     if (M.currentDragIcon) {
       board.removeChild(M.currentDragIcon);
       M.currentDragIcon = undefined;
@@ -189,11 +190,12 @@ function createBoard() {
       if (M.pointerDownCellI !== undefined && M.pointerDownCellI !== pointerUpCellI) {
         const fromn = 1n << M.pointerDownCellI;
         const ton = 1n << pointerUpCellI;
-        if (L.validationMode === 'none' || canMove(L.G, M.pointerDownCellI, pointerUpCellI, fromn, ton) === 'ok') {
-          makeMove(L.G, M.pointerDownCellI, pointerUpCellI, fromn, ton, true, L.G.promotionDefault);
+        if (L.validationMode === 'none' || canMove(L.G, M.pointerDownCellI, pointerUpCellI, fromn, ton, false, L.currentTarget_i) === 'ok') {
+          makeCompleteMove(L.G, M.pointerDownCellI, pointerUpCellI, fromn, ton, true, L.G.promotionDefault);
+          if (L.autoArrowClear === 'move' || S.autoArrowClear === 'move') clearArrows(L);
           L.currentCell_i = NO_CELL_I;
           L.currentCell_n = NO_CELL;
-          reflect(L.G);
+          reflect(L);
           //const hashes = getBoardHash(H);
           //console.log('board hash:', hashes)
           //console.log(Object.keys(hashes).map(key => `${key}: ${String(hashes[key]).length}`));

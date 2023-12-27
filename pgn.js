@@ -361,7 +361,7 @@ function pgnPreComputeStep(G, pgnGame, ply, halfGameTurn, fullGameTurn, debug = 
   if (debug) console.warn(`Attempting turn ${fullGameTurn}, moving a ${forWhite?'white':'black'} ${ply.piece}, from`, indexToId[fromi], 'to', indexToId[toi], ply);
   ply.final = `${ply.piece} from ${indexToId[fromi]} to ${indexToId[toi]}`;
   ply.fromResolved = indexToId[fromi];
-  makeMove(G, fromi, toi, fromn, ton, true, {B:'bishop', N: 'knight', R: 'rook', Q: 'queen'}[ply.promote] ?? 'queen');
+  makeCompleteMove(G, fromi, toi, fromn, ton, {B:'bishop', N: 'knight', R: 'rook', Q: 'queen'}[ply.promote] ?? 'queen');
   pgnGame.fenCache[halfGameTurn] = getFenString(G);
 }
 
@@ -372,48 +372,92 @@ function pgnPreComputeStep(G, pgnGame, ply, halfGameTurn, fullGameTurn, debug = 
  * @param {number} fullTurn Offset 1
  */
 function displayPgnMoveList(L, pgnGame, halfTurn, fullTurn) {
-  L.html.moves.innerHTML =
-    `half: ${halfTurn}, full: ${fullTurn}\n\n` +
-    pgnGame.moves.map(move => {
-    const arr = [];
+  const pre = L.html.moves;
+  pre.innerHTML = '';
+
+  pre.appendChild(document.createTextNode(`half: ${halfTurn}, full: ${fullTurn}\n\n`));
+
+  pgnGame.moves.forEach(move => {
     const turn = parseInt(move.turn, 10);
     const isTurn = turn === fullTurn;
     // Half turns offset at 0 with the start of the board, so the uneven half turns are
     // after white made a move and even half turns are after black made a move
     const isWhiteMove = halfTurn % 2 === 1;
-    if (isTurn) arr.push('<span style="background-color: #eee;">');
-    arr.push(`<span class="load_move" onclick="setPgnPointer(${turn * 2 - 1}); reflectPgn(L);">${move.turn.padStart(3, ' ')}</span>`);
-    arr.push(' ');
-    if (isTurn && isWhiteMove) arr.push('<b style="background-color: yellow">');
-    else arr.push(`<span class="load_move" onclick="setPgnPointer(${turn * 2 - 1}); reflectPgn(L);">`);
-    if (move.white) arr.push(`${move.white?.piece} ${move.white?.fromResolved} ${move.white?.to}`);
-    else arr.push(`--     `);
-    if (isTurn && isWhiteMove) arr.push('</b>');
-    else arr.push('</span>');
-    arr.push('  ');
-    if (isTurn && !isWhiteMove) arr.push('<b style="background-color: yellow">');
-    else arr.push(`<span class="load_move" onclick="setPgnPointer(${turn * 2}); reflectPgn(L);">`);
-    if (move.black) arr.push(`${move.black.piece} ${move.black.fromResolved} ${move.black.to}`);
-    else arr.push(`--     `);
-    if (isTurn && !isWhiteMove) arr.push('</b>');
-    else arr.push('</span>');
-    arr.push(' | ');
-    if (isTurn && isWhiteMove) arr.push('<b style="background-color: yellow">');
-    else arr.push(`<span class="load_move" onclick="setPgnPointer(${turn * 2 - 1}); reflectPgn(L);">`);
-    arr.push(String(move.white?.raw || ''));
-    if (isTurn && isWhiteMove) arr.push('</b>');
-    else arr.push('</span>');
-    arr.push(' '.repeat(10 - String(move.white?.raw || '').length));
-    if (isTurn && !isWhiteMove) arr.push('<b style="background-color: yellow">');
-    else arr.push(`<span class="load_move" onclick="setPgnPointer(${turn * 2}); reflectPgn(L);">`);
-    arr.push(String(move.black?.raw || ''));
-    if (isTurn && !isWhiteMove) arr.push('</b>');
-    else arr.push('</span>');
-    arr.push(' '.repeat(10 - String(move.black?.raw || '').length));
-    if (isTurn) arr.push('</span>');
-    if (move.end) arr.push('\n\n    ' + move.end.value);
-    return arr.join('');
-  }).join('\n')
+
+    const rowSpan = document.createElement('span');
+
+    const turnSpan = document.createElement('span');
+    turnSpan.innerHTML = move.turn.padStart(3, ' ');
+    turnSpan.addEventListener('pointerup', () => {
+      setPgnPointer(turn * 2 - 1);
+      reflectPgn(L);
+    });
+
+    const whiteLeft = document.createElement('span');
+    if (isTurn && isWhiteMove) {
+      whiteLeft.style = 'background-color: yellow;';
+    } else {
+      whiteLeft.className = 'load_move';
+      whiteLeft.addEventListener('pointerdown', () => {
+        setPgnPointer(turn * 2 - 1);
+        reflectPgn(L);
+      });
+    }
+    whiteLeft.innerHTML = move.white ? `${move.white?.piece} ${move.white?.fromResolved} ${move.white?.to}` : `--     `;
+
+    const blackLeft = document.createElement('span');
+    if (isTurn && !isWhiteMove) {
+      blackLeft.style = 'background-color: yellow;';
+    } else {
+      blackLeft.className = 'load_move';
+      blackLeft.addEventListener('pointerdown', () => {
+        setPgnPointer(turn * 2);
+        reflectPgn(L);
+      });
+    }
+    blackLeft.innerHTML = move.black ? `${move.black?.piece} ${move.black?.fromResolved} ${move.black?.to}` : `--     `;
+
+    // arr.push(' | ');
+
+    const whiteRight = document.createElement('span');
+    if (isTurn && isWhiteMove) {
+      whiteRight.style = 'background-color: yellow;';
+    } else {
+      whiteRight.className = 'load_move';
+      whiteRight.addEventListener('pointerdown', () => {
+        setPgnPointer(turn * 2 - 1);
+        reflectPgn(L);
+      });
+    }
+    whiteRight.innerHTML = move.white?.raw || '';
+
+    const blackRight = document.createElement('span');
+    if (isTurn && !isWhiteMove) {
+      blackRight.style = 'background-color: yellow;';
+    } else {
+      blackRight.className = 'load_move';
+      blackRight.addEventListener('pointerdown', () => {
+        setPgnPointer(turn * 2);
+        reflectPgn(L);
+      });
+    }
+    blackRight.innerHTML = move.black?.raw || '';
+
+    if (isTurn) rowSpan.style = 'background-color: #eee;';
+    rowSpan.appendChild(turnSpan);
+    rowSpan.appendChild(document.createTextNode(' '));
+    rowSpan.appendChild(whiteLeft);
+    rowSpan.appendChild(document.createTextNode('  '));
+    rowSpan.appendChild(blackLeft);
+    rowSpan.appendChild(document.createTextNode('  |  '));
+    rowSpan.appendChild(whiteRight);
+    rowSpan.appendChild(document.createTextNode(' '.repeat(Math.max(0, 10 - (move.white?.raw || '').length))));
+    rowSpan.appendChild(blackRight);
+    rowSpan.appendChild(document.createTextNode('\n'));
+    if (move.end) rowSpan.appendChild(document.createTextNode(move.end.value));
+
+    pre.appendChild(rowSpan);
+  });
 }
 
 /**
@@ -463,8 +507,9 @@ function reflectPgn(L) {
     G.prevFrom = idToIndex[pgnPlayer.pgn.moves[G.wholeTurnCounter - 1]?.white?.fromResolved];
     G.prevTo = idToIndex[pgnPlayer.pgn.moves[G.wholeTurnCounter - 1]?.white?.to];
   }
+  L.G = G;
   //console.log('reflectPgn:', G, fen)
-  reflect(G);
+  reflect(L);
   displayPgnMoveList(L, pgnPlayer.pgn, pgnPlayer.halfTurn, pgnPlayer.fullTurn);
 }
 

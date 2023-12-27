@@ -1,18 +1,18 @@
 /**
- * @param G {Game}
+ * @param L {LocalState}
  */
-function reflect(G) {
+function reflect(L) {
   //console.trace('reflect attempt...', G);
   // Debounce visual representation but store the state to show
-  L.G = G;
   if (L.reflectTimer) return;// console.log('debounced...');
-  L.reflectTimer = setTimeout(() => realReflect(L.G), 100);
+  L.reflectTimer = setTimeout(() => realReflect(L), 100);
 }
 
 /**
- * @param G {Game}
+ * @param L {LocalState}
  */
-function realReflect(G) {
+function realReflect(L) {
+  const G = L.G;
   clearTimeout(L.reflectTimer);
   L.reflectTimer = undefined;
 
@@ -97,7 +97,7 @@ function realReflect(G) {
             ? 'transparent'
             : L.currentCell_i === i
               ? 'red'
-              : {ok: 'green', bad: 'transparent', blocked: $show_pseudo_moves.checked ? 'orange' : 'transparent'}[canMove(G, L.currentCell_i, i, L.currentCell_n, n, L.validationMode === 'none')];
+              : {ok: 'green', bad: 'transparent', blocked: $show_pseudo_moves.checked ? 'orange' : 'transparent'}[canMove(G, L.currentCell_i, i, L.currentCell_n, n, L.validationMode === 'none', L.currentTarget_i)];
         break;
       }
       case 'is_checked_white': {
@@ -165,28 +165,33 @@ function realReflect(G) {
 
   const hash = getFenishString(G);
   L.html.three.innerHTML = G.threefold.get(hash) ?? '0';
-  $thrash.value = hash;
+  L.html.thresh.value = hash;
   console.timeEnd('reflected');
 }
 
 /**
+ * @param L {LocalState}
  * @param cell {string}
  */
-function setCurrent(cell) {
-  if (S.autoArrowClear === 'move') clearArrows();
+function setCurrent(L, cell) {
+  if (S.autoArrowClear === 'move') clearArrows(L);
   const i = cell === '' ? NO_CELL_I : (idToIndex[cell] ?? NO_CELL_I);
   L.currentCell_i = i;
   L.currentCell_n = 1n << i;
 }
 
 /**
+ * @param L {LocalState}
  * @param cell {string}
  */
-function setTarget(cell) {
+function setTarget(L, cell) {
   L.currentTarget_i = cell === '' ? NO_CELL_I : idToIndex[cell];
 }
 
-function clearArrows() {
+/**
+ * @param {LocalState} L
+ */
+function clearArrows(L) {
   for (let i=0; i<64; ++i) L.html.cells[i].classList.remove('lit');
   L.arrowMap.forEach((div, key) => {
     L.html.root.removeChild(div);

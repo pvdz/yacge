@@ -6,13 +6,14 @@
  * @param toi {BigInt} The index (0..63)
  * @param fromn {BigInt} A single bit is set, representing the field to move from
  * @param ton {BigInt} A single bit is set, representing the field to move to
- * @param forReal {boolean}
  * @param promotionDefault {'' | 'queen' | 'rook' | 'knight' | 'bishop'}
  */
-function makeMove(G, fromi, toi, fromn = 1n << fromi, ton = 1n << toi, forReal = false, promotionDefault = '') {
+function makeMove(G, fromi, toi, fromn = 1n << fromi, ton = 1n << toi, promotionDefault = '') {
   // This function only actually moves a piece from one cell to another and updates state accordingly.
   // Note: the move may be an invalid chess move (!).
+  // Note: result will not apply pawn promotion (see makeCompleteMove for that)
   // Castling and en-passant is handled explicitly
+  // The result should be able to be used for "is checked" validations
 
   const isWhite = G.white & fromn;
   const clearToFrom = BigInt.asUintN(64, ~(fromn | ton));
@@ -135,9 +136,24 @@ function makeMove(G, fromi, toi, fromn = 1n << fromi, ton = 1n << toi, forReal =
   G.knights = (G.knights & fromn ? ton : 0n) | (G.knights & clearToFrom);
   G.bishops = (G.bishops & fromn ? ton : 0n) | (G.bishops & clearToFrom);
   G.pawns = (G.pawns & fromn ? ton : 0n) | (G.pawns & clearToFrom);
+}
 
-  // Track pawn promotion (ignore if not forReal, this promotion is irrelevant for a test-move)
-  if (forReal && isPawnMove) {
+/**
+ * @param G {Game}
+ * @param fromi {BigInt} The index (0..63)
+ * @param toi {BigInt} The index (0..63)
+ * @param fromn {BigInt} A single bit is set, representing the field to move from
+ * @param ton {BigInt} A single bit is set, representing the field to move to
+ * @param promotionDefault {'' | 'queen' | 'rook' | 'knight' | 'bishop'}
+ */
+function makeCompleteMove(G, fromi, toi, fromn = 1n << fromi, ton = 1n << toi, promotionDefault = '') {
+  const isWhite = G.white & fromn;
+  const isPawnMove = G.pawns & fromn;
+
+  makeMove(G, fromi, toi, fromn, ton, promotionDefault);
+
+  // Track pawn promotion
+  if (isPawnMove) {
     // We need to apply promotion when a pawn reaches the back rank. The `from` does not matter.
     if (isWhite ? (toi >= 56n && toi <= 63n) : (toi >= 0n && toi <= 7n)) {
       // it was a beautiful butterfly
@@ -161,13 +177,9 @@ function makeMove(G, fromi, toi, fromn = 1n << fromi, ton = 1n << toi, forReal =
 
   // A "whole" turn is both players. White always begin so the whole turn counter increases after black's move.
   if (!isWhite) G.wholeTurnCounter += 1;
-
-  if (forReal) {
-    recordBoardState(G);
-    G.prevFrom = fromi;
-    G.prevTo = toi;
-    if (S.autoArrowClear === 'move') clearArrows();
-  }
+  recordBoardState(G);
+  G.prevFrom = fromi;
+  G.prevTo = toi;
 }
 
 function findSourceCellFromPgnMove(G, forWhite, piece, tos, fromFile, fromRank, debug = false) {
@@ -578,10 +590,11 @@ function recordBoardState(G) {
  * @param toi {BigInt} The index (0..63)
  * @param fromn {BigInt} A single bit is set, representing the field to move from
  * @param ton {BigInt} A single bit is set, representing the field to move to
- * @param ignoreTurn {boolean}
+ * @param [ignoreTurn] {boolean}
+ * @param [targetCellI] {BigInt}
  * @returns { 'ok' | 'bad' | 'blocked' }
  */
-function canMove(G, fromi, toi, fromn = 1n << fromi, ton = 1n << toi, ignoreTurn = false) {
+function canMove(G, fromi, toi, fromn = 1n << fromi, ton = 1n << toi, ignoreTurn = false, targetCellI = NO_CELL_I) {
   // Assumes the game state has one king. If there are multiple, the no-check rule is skipped.
 
   const filled = G.white | G.black;
@@ -598,7 +611,7 @@ function canMove(G, fromi, toi, fromn = 1n << fromi, ton = 1n << toi, ignoreTurn
     return 'bad';
   }
 
-  if (L.currentTarget_i !== NO_CELL_I && L.currentTarget_i !== toi) {
+  if (targetCellI !== NO_CELL_I && targetCellI !== toi) {
     return 'bad';
   }
 

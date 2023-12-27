@@ -72,12 +72,14 @@
  * @property {Element} fenCurrent
  * @property {Element} turnWhite
  * @property {Element} turnBlack
+ * @property {Element} thresh
  */
 
 /**
  * The state data for one board and everything around it.
  *
  * @typedef LocalState {Object}
+ * @property {string} uid A unique string for this game. Used, at least, to namespace radio button names which are otherwise global.
  * @property {Game} G The implicit game state for this board
  * @property {Lhtml} html
  * @property {'' | 'none' | 'filled' | 'white' | 'black' | 'pawns' | 'kings' | 'queens' | 'knights' | 'bishops' | 'rooks' | 'can_move' | 'is_checked_white' | 'is_checked_black' } currentOverlay (Overrides the global value)
@@ -115,14 +117,27 @@ const M = {
   deselectCell: false,
 };
 
-/**
- * (This will later allow us to spawn multiple boards, but for now it's sort of global)
- *
- * @type {LocalState}
- */
-const L = createBoard();
+{
+  /**
+   * (This will later allow us to spawn multiple boards, but for now it's sort of global)
+   *
+   * @type {LocalState}
+   */
+  const L = createBoard('1');
+  createMenu(L);
+  initPgn(L, L.html.pgnInput.value);
+  //reflect(L);
+}
+{
+  /**
+   * (This will later allow us to spawn multiple boards, but for now it's sort of global)
+   *
+   * @type {LocalState}
+   */
+  const L = createBoard('2');
+  createMenu(L);
+  L.G = parseFen('r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1');
+  // initPgn(L, L.html.pgnInput.value);
+  reflect(L);
+}
 
-createMenu(L);
-
-initPgn(L, L.html.pgnInput.value);
-//reflect(L.G);

@@ -116,9 +116,9 @@ function menuTurn(L) {
   const turn = fieldset('Turn');
   turn.style = 'float: left';
 
-  const [labelW, inputW] = toggle('turn_input', 'radio', '', 'turn', 'white', true, 'turn_button', 'white');
+  const [labelW, inputW] = toggle('turn_input', 'radio', '', `turn_${L.uid}`, 'white', true, 'turn_button', 'white');
   div('turn_block', turn, labelW);
-  const [labelB, inputB] = toggle('turn_input', 'radio', '', 'turn', 'black', true, 'turn_button', 'black');
+  const [labelB, inputB] = toggle('turn_input', 'radio', '', `turn_${L.uid}`, 'black', true, 'turn_button', 'black');
   div('turn_block', turn, labelB);
 
   L.html.turnWhite = inputW;
@@ -151,19 +151,19 @@ function menuCastling(L) {
 
   L.html.castleQueensideWhite.addEventListener('change', () => {
     L.G.castleQueensideWhite = !L.G.castleQueensideWhite;
-    reflect(L.G);
+    reflect(L);
   });
   L.html.castleKingsideWhite.addEventListener('change', () => {
     L.G.castleKingsideWhite = !L.G.castleKingsideWhite;
-    reflect(L.G);
+    reflect(L);
   });
   L.html.castleQueensideBlack.addEventListener('change', () => {
     L.G.castleQueensideBlack = !L.G.castleQueensideBlack;
-    reflect(L.G);
+    reflect(L);
   });
   L.html.castleKingsideBlack.addEventListener('change', () => {
     L.G.castleKingsideBlack = !L.G.castleKingsideBlack;
-    reflect(L.G);
+    reflect(L);
   });
 
   return castling;
@@ -187,7 +187,7 @@ function menuEnPassant(L) {
 
   input.addEventListener('change', e => {
     L.G.enpassant = idToIndex[String(e.target.value).toLowerCase().replace(/ /g, '')] ?? NO_CELL_I;
-    reflect(L.G);
+    reflect(L);
   });
 
   return label;
@@ -203,7 +203,7 @@ function menuFullTurn(L) {
   label.innerHTML = 'Full turn: ';
   const input = document.createElement('input');
   input.className = 'enpassanter'; // TODO
-  input.pattern = '\d+';
+  input.pattern = '\\d+';
   input.value = '1';
   label.appendChild(input);
 
@@ -226,7 +226,7 @@ function menuFiftyTurnRule(L) {
   label.innerHTML = '50 turn: ';
   const input = document.createElement('input');
   input.className = 'enpassanter'; // TODO
-  input.pattern = '\d+';
+  input.pattern = '\\d+';
   input.value = '0';
   label.appendChild(input);
 
@@ -244,8 +244,8 @@ function menuFiftyTurnRule(L) {
  * @returns {Element}
  */
 function menuThreefold(L) {
-  const div = document.createElement('div');
-  div.InnerHTML = 'Threefold repeat: ';
+  const div = document.createElement('span');
+  div.innerHTML = 'Threefold repeat: ';
   const span = document.createElement('span');
   div.appendChild(span);
 
@@ -254,7 +254,11 @@ function menuThreefold(L) {
   return div;
 }
 
-function menuMaterial() {
+/**
+ * @param {LocalState} L
+ * @returns {Element}
+ */
+function menuMaterial(L) {
   const fs = fieldset('Material');
 
   const divWhite = document.createElement('div');
@@ -286,7 +290,7 @@ function menuCurrentGame(L) {
   current.appendChild(menuCastling(L));
   div('', current, menuEnPassant(L), menuFullTurn(L))//.style = 'clear: left';
   div('', current, menuFiftyTurnRule(L), menuThreefold(L));
-  current.appendChild(menuMaterial());
+  current.appendChild(menuMaterial(L));
 
   return current;
 }
@@ -393,12 +397,16 @@ Rc2# 0-1
 function menuFen(L) {
   const fen = fieldset('FEN');
 
-  const {wrap, input} = inputAndGo('fen_input_wrapper', 'fen_input', 'width: 350px;', '([rnbqkpRNBQKP1-8\\/]+){8} [wb] [KQkq\\-]+ (-|[a-h][1-8]) \\d+ \\d+', '', 'Load', () => reflect(parseFen(L.html.fenInput.value)));
+  const {wrap, input} = inputAndGo('fen_input_wrapper', 'fen_input', 'width: 350px;', '([rnbqkpRNBQKP1-8\\/]+){8} [wb] [KQkq\\-]+ (-|[a-h][1-8]) \\d+ \\d+', '', 'Load', () => {
+    L.G = parseFen(L.html.fenInput.value);
+    reflect(L);
+  });
   fen.appendChild(wrap);
 
   L.html.fenInput = input;
 
   const wrap2 = div('fen_input', fen);
+  wrap2.style = 'margin-top: 5px;';
   wrap2.innerHTML = 'Current: ';
 
   const current = document.createElement('input');
@@ -417,14 +425,14 @@ function menuFen(L) {
 function menuPromotion(L) {
   const promo = fieldset('Promotion');
 
-  promo.appendChild(labeledInput('radio', 'promo', 'queen', ' queen', undefined, true));
-  promo.appendChild(labeledInput('radio', 'promo', 'rook', ' rook'));
-  promo.appendChild(labeledInput('radio', 'promo', 'bishop', ' bishop'));
-  promo.appendChild(labeledInput('radio', 'promo', 'knight', ' knight'));
-  promo.appendChild(labeledInput('radio', 'promo', 'fail', ' (fail)'));
+  promo.appendChild(labeledInput('radio', `promo_${L.uid}`, 'queen', ' queen', undefined, true));
+  promo.appendChild(labeledInput('radio', `promo_${L.uid}`, 'rook', ' rook'));
+  promo.appendChild(labeledInput('radio', `promo_${L.uid}`, 'bishop', ' bishop'));
+  promo.appendChild(labeledInput('radio', `promo_${L.uid}`, 'knight', ' knight'));
+  promo.appendChild(labeledInput('radio', `promo_${L.uid}`, 'fail', ' (fail)'));
 
   promo.addEventListener('change', () => {
-    L.G.promotionDefault = document.querySelector('input[name=promo]:checked').value;
+    L.G.promotionDefault = document.querySelector(`input[name=promo_${L.uid}]:checked`).value;
   });
 
   return promo;
@@ -437,12 +445,12 @@ function menuPromotion(L) {
 function menuValidation(L) {
   const fs = fieldset('Move validation enforcement');
 
-  fs.appendChild(labeledInput('radio', 'validation', 'none', ' none '));
-  fs.appendChild(labeledInput('radio', 'validation', 'strict', ' strict ', undefined, true));
+  fs.appendChild(labeledInput('radio', `validation_${L.uid}`, 'none', ' none '));
+  fs.appendChild(labeledInput('radio', `validation_${L.uid}`, 'strict', ' strict ', undefined, true));
   const showAll = fs.appendChild(labeledInput('checkbox', '', '', ' Show all pseudo moves', '$show_pseudo_moves', true));
 
   fs.addEventListener('change', () => {
-    L.validationMode = document.querySelector('input[name=validation]:checked').value;
+    L.validationMode = document.querySelector(`input[name=validation_${L.uid}]:checked`).value;
   });
 
   showAll.addEventListener('change', () => reflect(L.G));
@@ -457,35 +465,35 @@ function menuValidation(L) {
 function menuLayers(L) {
   const layers = fieldset('Layer view');
 
-  layers.appendChild(labeledInput('radio', 'underlay', 'none', ' none'));
+  layers.appendChild(labeledInput('radio', `underlay_${L.uid}`, 'none', ' none'));
   layers.appendChild(document.createTextNode(' '));
-  layers.appendChild(labeledInput('radio', 'underlay', 'can_move', ' canMove', undefined, true));
+  layers.appendChild(labeledInput('radio', `underlay_${L.uid}`, 'can_move', ' canMove', undefined, true));
   layers.appendChild(document.createTextNode(' '));
-  layers.appendChild(labeledInput('radio', 'underlay', 'filled', ' filled'));
+  layers.appendChild(labeledInput('radio', `underlay_${L.uid}`, 'filled', ' filled'));
   layers.appendChild(document.createTextNode(' '));
-  layers.appendChild(labeledInput('radio', 'underlay', 'white', ' white'));
+  layers.appendChild(labeledInput('radio', `underlay_${L.uid}`, 'white', ' white'));
   layers.appendChild(document.createTextNode(' '));
-  layers.appendChild(labeledInput('radio', 'underlay', 'black', ' black'));
+  layers.appendChild(labeledInput('radio', `underlay_${L.uid}`, 'black', ' black'));
   layers.appendChild(document.createTextNode(' '));
-  layers.appendChild(labeledInput('radio', 'underlay', 'pawns', ' pawns'));
+  layers.appendChild(labeledInput('radio', `underlay_${L.uid}`, 'pawns', ' pawns'));
   layers.appendChild(document.createTextNode(' '));
-  layers.appendChild(labeledInput('radio', 'underlay', 'kings', ' kings'));
+  layers.appendChild(labeledInput('radio', `underlay_${L.uid}`, 'kings', ' kings'));
   layers.appendChild(document.createTextNode(' '));
-  layers.appendChild(labeledInput('radio', 'underlay', 'queens', ' queens'));
+  layers.appendChild(labeledInput('radio', `underlay_${L.uid}`, 'queens', ' queens'));
   layers.appendChild(document.createTextNode(' '));
-  layers.appendChild(labeledInput('radio', 'underlay', 'knights', ' knights'));
+  layers.appendChild(labeledInput('radio', `underlay_${L.uid}`, 'knights', ' knights'));
   layers.appendChild(document.createTextNode(' '));
-  layers.appendChild(labeledInput('radio', 'underlay', 'bishops', ' bishops'));
+  layers.appendChild(labeledInput('radio', `underlay_${L.uid}`, 'bishops', ' bishops'));
   layers.appendChild(document.createTextNode(' '));
-  layers.appendChild(labeledInput('radio', 'underlay', 'rooks', ' rooks'));
+  layers.appendChild(labeledInput('radio', `underlay_${L.uid}`, 'rooks', ' rooks'));
   layers.appendChild(document.createTextNode(' '));
-  layers.appendChild(labeledInput('radio', 'underlay', 'is_checked_white', ' isChecked.white'));
+  layers.appendChild(labeledInput('radio', `underlay_${L.uid}`, 'is_checked_white', ' isChecked.white'));
   layers.appendChild(document.createTextNode(' '));
-  layers.appendChild(labeledInput('radio', 'underlay', 'is_checked_black', ' isChecked.black'));
+  layers.appendChild(labeledInput('radio', `underlay_${L.uid}`, 'is_checked_black', ' isChecked.black'));
 
   layers.addEventListener('change', () => {
-    S.currentOverlay = document.querySelector('input[name=underlay]:checked').value;
-    reflect(L.G);
+    S.currentOverlay = document.querySelector(`input[name=underlay_${L.uid}]:checked`).value;
+    reflect(L);
   });
 
   return layers;
@@ -498,14 +506,14 @@ function menuLayers(L) {
 function menuCellIdHint(L) {
   const layers = fieldset('Cell ID hint');
 
-  layers.appendChild(labeledInput('radio', 'cell_id', 'cell_id_none', ' none', undefined, true));
-  layers.appendChild(labeledInput('radio', 'cell_id', 'cell_id_index', ' index'));
-  layers.appendChild(labeledInput('radio', 'cell_id', 'cell_id_coord', ' coord'));
-  layers.appendChild(labeledInput('radio', 'cell_id', 'cell_id_both', ' both'));
+  layers.appendChild(labeledInput('radio', `cell_id_${L.uid}`, 'cell_id_none', ' none', undefined, true));
+  layers.appendChild(labeledInput('radio', `cell_id_${L.uid}`, 'cell_id_index', ' index'));
+  layers.appendChild(labeledInput('radio', `cell_id_${L.uid}`, 'cell_id_coord', ' coord'));
+  layers.appendChild(labeledInput('radio', `cell_id_${L.uid}`, 'cell_id_both', ' both'));
 
   layers.addEventListener('change', () => {
     L.html.root.classList.remove('cell_id_coord', 'cell_id_index', 'cell_id_both', 'cell_id_none');
-    L.html.root.classList.add(document.querySelector('input[name=cell_id]:checked').value);
+    L.html.root.classList.add(document.querySelector(`input[name=cell_id_${L.uid}]:checked`).value);
   });
 
   return layers;
@@ -518,18 +526,18 @@ function menuCellIdHint(L) {
 function menuArrowControl(L) {
   const layers = fieldset('Arrow drawing');
 
-  layers.appendChild(labeledInput('radio', 'auto_arrow_remove', 'none', ' none'));
-  layers.appendChild(labeledInput('radio', 'auto_arrow_remove', 'select', ' after cell select', undefined, true));
-  layers.appendChild(labeledInput('radio', 'auto_arrow_remove', 'move', ' after any move'));
+  layers.appendChild(labeledInput('radio', `auto_arrow_remove_${L.uid}`, 'none', ' none'));
+  layers.appendChild(labeledInput('radio', `auto_arrow_remove_${L.uid}`, 'select', ' after cell select', undefined, true));
+  layers.appendChild(labeledInput('radio', `auto_arrow_remove_${L.uid}`, 'move', ' after any move'));
 
   layers.addEventListener('change', () => {
-    S.autoArrowClear = document.querySelector('input[name=auto_arrow_remove]:checked').value;
+    S.autoArrowClear = document.querySelector(`input[name=auto_arrow_remove_${L.uid}]:checked`).value;
   });
 
   const button = document.createElement('button');
   button.innerHTML = 'clear arrows now';
   button.style = 'margin-top: 10px;'; // TODO
-  button.addEventListener('pointerup', () => clearArrows());
+  button.addEventListener('pointerup', () => clearArrows(L));
   layers.appendChild(document.createElement('br'));
   layers.appendChild(button);
 
@@ -543,7 +551,6 @@ function menuArrowControl(L) {
  */
 function menuFenPresets(L) {
   const presets = fieldset('FEN presets');
-  //presets.id = '$fens'; // TODO
 
   presets.appendChild(inputAndGo('', '', 'width: 350px;', '([rnbqkpRNBQKP1-8\\/]+){8} [wb] [KQkq\\-]+ (-|[a-h][1-8]) \\d+ \\d+', 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', 'start').wrap);
   presets.appendChild(inputAndGo('', '', 'width: 350px;', '([rnbqkpRNBQKP1-8\\/]+){8} [wb] [KQkq\\-]+ (-|[a-h][1-8]) \\d+ \\d+', 'rnbq1bnr/pppppppp/8/4Q3/3k4/8/PPPPPPPP/RNB1KBNR b KQ - 0 1', 'queen ray check over').wrap);
@@ -556,7 +563,8 @@ function menuFenPresets(L) {
 
   presets.addEventListener('pointerup', e => {
     if (e.target.previousElementSibling?.value) {
-      reflect(parseFen(e.target.previousElementSibling.value));
+      L.G = parseFen(e.target.previousElementSibling.value);
+      reflect(L);
     }
   });
 
@@ -573,9 +581,10 @@ function menuThreeStatus(L) {
   const label = document.createElement('label');
 
   const input = document.createElement('input');
-  input.id = '$thrash';
   input.style = 'width: 350px;';
   label.appendChild(input);
+
+  L.html.thresh = input;
 
   thresh.appendChild(label);
 
@@ -613,8 +622,9 @@ function menuPly(L) {
   wet.addEventListener('pointerup', e => {
     const ply = parsePgnPly(e.target.parentNode.querySelector('input').value, L.G.turnWhite);
     const source = findSourceCellFromPgnMove(L.G, true, ply.piece, ply.to, ply.fromFile, ply.fromRank);
-    makeMove(L.G, source.i, idToIndex[ply.to], source.n);
-    reflect(L.G);
+    makeCompleteMove(L.G, source.i, idToIndex[ply.to], source.n);
+    if (S.autoArrowClear === 'move' || S.autoArrowClear === 'move') clearArrows(L);
+    reflect(L);
   });
   ply.appendChild(wet);
 
