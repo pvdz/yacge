@@ -34,21 +34,6 @@
  */
 
 /**
- * The state data for one board and everything around it.
- *
- * @typedef LocalState {Object}
- * @property {Game} G The implicit game state for this board
- * @property {Element[]} cellDivs First element is h1, last element is a8, going 1-8 then a-h
- * @property {'' | 'none' | 'filled' | 'white' | 'black' | 'pawns' | 'kings' | 'queens' | 'knights' | 'bishops' | 'rooks' | 'can_move' | 'is_checked_white' | 'is_checked_black' } currentOverlay (Overrides the global value)
- * @property {Map<string, Element>} arrowMap
- * @property {BigInt} currentCell_i Current selection cell index
- * @property {BigInt} currentCell_n Current selection cell bit
- * @property {BigInt} currentTarget_i Only for debugging. Will ignore any other cell when doing attack checks etc.
- * @property {'none' | 'strict'} validationMode
- * @property {number} reflectTimer
- */
-
-/**
  * Pointer related state. I like mouse state better :shrug:
  *
  * @typedef MouseState {Object}
@@ -62,6 +47,46 @@
  * @property {boolean} pointerDragging
  * @property {undefined|Element} currentDragIcon
  * @property {Element} currentArrow
+ */
+
+/**
+ * The html state of a single board
+ *
+ * @typedef Lhtml {Object}
+ * @property {Element} root
+ * @property {Element[]} cells First element of cells is h1, last element is a8, going 1-8 then a-h
+ * @property {Element} castleQueensideWhite
+ * @property {Element} castleKingsideWhite
+ * @property {Element} castleQueensideBlack
+ * @property {Element} castleKingsideBlack
+ * @property {Element} enpassant
+ * @property {Element} turns
+ * @property {Element} turn50
+ * @property {Element} three
+ * @property {Element} spanWhite
+ * @property {Element} spanBlack
+ * @property {Element} movePlayer
+ * @property {Element} moves
+ * @property {Element} pgnInput
+ * @property {Element} fenInput
+ * @property {Element} fenCurrent
+ * @property {Element} turnWhite
+ * @property {Element} turnBlack
+ */
+
+/**
+ * The state data for one board and everything around it.
+ *
+ * @typedef LocalState {Object}
+ * @property {Game} G The implicit game state for this board
+ * @property {Lhtml} html
+ * @property {'' | 'none' | 'filled' | 'white' | 'black' | 'pawns' | 'kings' | 'queens' | 'knights' | 'bishops' | 'rooks' | 'can_move' | 'is_checked_white' | 'is_checked_black' } currentOverlay (Overrides the global value)
+ * @property {Map<string, Element>} arrowMap
+ * @property {BigInt} currentCell_i Current selection cell index
+ * @property {BigInt} currentCell_n Current selection cell bit
+ * @property {BigInt} currentTarget_i Only for debugging. Will ignore any other cell when doing attack checks etc.
+ * @property {'none' | 'strict'} validationMode
+ * @property {number} reflectTimer
  */
 
 
@@ -90,39 +115,14 @@ const M = {
   deselectCell: false,
 };
 
-createBoard();
-createMenu();
-
 /**
  * (This will later allow us to spawn multiple boards, but for now it's sort of global)
  *
  * @type {LocalState}
  */
-const L = {
-  G: parseFen(FEN_NEW_GAME),
-  currentOverlay: '',
-  cellDivs: [ // note: transposed. first element is the least significant bit (bottom right) is H1
-    $h1, $g1, $f1, $e1, $d1, $c1, $b1, $a1,
-    $h2, $g2, $f2, $e2, $d2, $c2, $b2, $a2,
-    $h3, $g3, $f3, $e3, $d3, $c3, $b3, $a3,
-    $h4, $g4, $f4, $e4, $d4, $c4, $b4, $a4,
-    $h5, $g5, $f5, $e5, $d5, $c5, $b5, $a5,
-    $h6, $g6, $f6, $e6, $d6, $c6, $b6, $a6,
-    $h7, $g7, $f7, $e7, $d7, $c7, $b7, $a7,
-    $h8, $g8, $f8, $e8, $d8, $c8, $b8, $a8,
-  ],
-  arrowMap: new Map,
-  validationMode: 'strict',
-  reflectTimer: 0,
-  currentCell_i: NO_CELL_I,
-  currentCell_n: NO_CELL,
-  currentTarget_i: NO_CELL_I,
+const L = createBoard();
 
+createMenu(L);
 
-  // TODO next:
-  // - history
-  // - alt-lines?
-};
-
-//initPgn($pgn.value);
-reflect(L.G);
+initPgn(L, L.html.pgnInput.value);
+//reflect(L.G);

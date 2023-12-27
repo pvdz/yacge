@@ -319,7 +319,13 @@ function parsePgnPly(part, forWhite) {
   return r;
 }
 
-function initPgn(str, debug = false) {
+/**
+ * @param {LocalState} L
+ * @param {string} str
+ * @param {boolean} [debug]
+ * @returns {Element}
+ */
+function initPgn(L, str, debug = false) {
   const pgnGame = parsePgn(str);
 
   // Create fresh starting game.
@@ -336,9 +342,8 @@ function initPgn(str, debug = false) {
 
   pgnPlayer = {pgn: pgnGame, timer: undefined, halfTurn: 0, fullTurn: 0};
 
-  reflectPgn();
-  $pngcontrols.style.display = 'block';
-  $movePlayer.style.display = 'block';
+  reflectPgn(L);
+  L.html.movePlayer.style.display = 'block';
 }
 
 /**
@@ -361,12 +366,13 @@ function pgnPreComputeStep(G, pgnGame, ply, halfGameTurn, fullGameTurn, debug = 
 }
 
 /**
- * @param pgnGame {PgnGame}
- * @param halfTurn {number} Zero is the (constant) start of any game, one is after white made their first move, two is after black's first move, and so forth
- * @param fullTurn {number} Offset 1
+ * @param {LocalState} L
+ * @param {PgnGame} pgnGame
+ * @param {number} halfTurn Zero is the (constant) start of any game, one is after white made their first move, two is after black's first move, and so forth
+ * @param {number} fullTurn Offset 1
  */
-function displayPgnMoveList(pgnGame, halfTurn, fullTurn) {
-  $moves.innerHTML =
+function displayPgnMoveList(L, pgnGame, halfTurn, fullTurn) {
+  L.html.moves.innerHTML =
     `half: ${halfTurn}, full: ${fullTurn}\n\n` +
     pgnGame.moves.map(move => {
     const arr = [];
@@ -376,30 +382,30 @@ function displayPgnMoveList(pgnGame, halfTurn, fullTurn) {
     // after white made a move and even half turns are after black made a move
     const isWhiteMove = halfTurn % 2 === 1;
     if (isTurn) arr.push('<span style="background-color: #eee;">');
-    arr.push(`<span class="load_move" onclick="setPgnPointer(${turn * 2 - 1}); reflectPgn();">${move.turn.padStart(3, ' ')}</span>`);
+    arr.push(`<span class="load_move" onclick="setPgnPointer(${turn * 2 - 1}); reflectPgn(L);">${move.turn.padStart(3, ' ')}</span>`);
     arr.push(' ');
     if (isTurn && isWhiteMove) arr.push('<b style="background-color: yellow">');
-    else arr.push(`<span class="load_move" onclick="setPgnPointer(${turn * 2 - 1}); reflectPgn();">`);
+    else arr.push(`<span class="load_move" onclick="setPgnPointer(${turn * 2 - 1}); reflectPgn(L);">`);
     if (move.white) arr.push(`${move.white?.piece} ${move.white?.fromResolved} ${move.white?.to}`);
     else arr.push(`--     `);
     if (isTurn && isWhiteMove) arr.push('</b>');
     else arr.push('</span>');
     arr.push('  ');
     if (isTurn && !isWhiteMove) arr.push('<b style="background-color: yellow">');
-    else arr.push(`<span class="load_move" onclick="setPgnPointer(${turn * 2}); reflectPgn();">`);
+    else arr.push(`<span class="load_move" onclick="setPgnPointer(${turn * 2}); reflectPgn(L);">`);
     if (move.black) arr.push(`${move.black.piece} ${move.black.fromResolved} ${move.black.to}`);
     else arr.push(`--     `);
     if (isTurn && !isWhiteMove) arr.push('</b>');
     else arr.push('</span>');
     arr.push(' | ');
     if (isTurn && isWhiteMove) arr.push('<b style="background-color: yellow">');
-    else arr.push(`<span class="load_move" onclick="setPgnPointer(${turn * 2 - 1}); reflectPgn();">`);
+    else arr.push(`<span class="load_move" onclick="setPgnPointer(${turn * 2 - 1}); reflectPgn(L);">`);
     arr.push(String(move.white?.raw || ''));
     if (isTurn && isWhiteMove) arr.push('</b>');
     else arr.push('</span>');
     arr.push(' '.repeat(10 - String(move.white?.raw || '').length));
     if (isTurn && !isWhiteMove) arr.push('<b style="background-color: yellow">');
-    else arr.push(`<span class="load_move" onclick="setPgnPointer(${turn * 2}); reflectPgn();">`);
+    else arr.push(`<span class="load_move" onclick="setPgnPointer(${turn * 2}); reflectPgn(L);">`);
     arr.push(String(move.black?.raw || ''));
     if (isTurn && !isWhiteMove) arr.push('</b>');
     else arr.push('</span>');
@@ -410,9 +416,14 @@ function displayPgnMoveList(pgnGame, halfTurn, fullTurn) {
   }).join('\n')
 }
 
-function togglePgn(str) {
+/**
+ * @param {LocalState} L
+ * @param {string} [str]
+ * @returns {Element}
+ */
+function togglePgn(L, str) {
   if (!pgnPlayer) {
-    initPgn(str);
+    initPgn(L, str);
   }
 
   if (pgnPlayer.timer) {
@@ -420,21 +431,25 @@ function togglePgn(str) {
     pgnPlayer.timer = undefined;
   } else {
     pgnPlayer.timer = setInterval(() => {
-      fwdPgn(1);
+      fwdPgn(L, 1);
     }, 1000);
   }
 }
 
 /**
+ * @param {LocalState} L
  * @param [steps=1] {number}
  * @returns {Game}
  */
-function fwdPgn(steps = 1) {
-  deltaPgnPointer(steps);
-  reflectPgn();
+function fwdPgn(L, steps = 1) {
+  deltaPgnPointer(L, steps);
+  reflectPgn(L);
 }
 
-function reflectPgn() {
+/**
+ * @param {LocalState} L
+ */
+function reflectPgn(L) {
   const fen = pgnPlayer.pgn.fenCache[pgnPlayer.halfTurn];
   if (fen === undefined) {
     console.log('current halfturn has no FEN cache (halfturn', pgnPlayer.halfTurn, ', fen cache size', pgnPlayer.pgn.fenCache.length, ')');
@@ -450,13 +465,14 @@ function reflectPgn() {
   }
   //console.log('reflectPgn:', G, fen)
   reflect(G);
-  displayPgnMoveList(pgnPlayer.pgn, pgnPlayer.halfTurn, pgnPlayer.fullTurn);
+  displayPgnMoveList(L, pgnPlayer.pgn, pgnPlayer.halfTurn, pgnPlayer.fullTurn);
 }
 
 /**
+ * @param {LocalState} L
  * @param [steps=1] {number}
  */
-function deltaPgnPointer(steps) {
+function deltaPgnPointer(L, steps) {
   setPgnPointer(pgnPlayer.halfTurn + steps);
 }
 

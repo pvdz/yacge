@@ -16,29 +16,58 @@ function cellHtml(id, index, i, j) {
   return cellDiv;
 }
 
+/**
+ * @returns {{cellDivs: Element[], root: Element}}
+ */
 function createBoardHtml() {
   const outer = div('board_outer');
   const middle = div('board_middle', outer)
   const inner = div('board_inner', middle);
-  inner.id = '$board';
+  //inner.id = '$board';
+
+  const cellDivs = [];
 
   // Top row of file ("column") indicators
   FILE_HEADERS.forEach(str => inner.appendChild(div('gutter_label')).innerHTML = str);
   CELL_DATA.forEach((rank, j) => {
     inner.appendChild(div('gutter_label')).innerHTML = String(8 - j);
     rank.forEach(([id, index], i) => {
-      inner.appendChild(cellHtml(id, index, i, j));
+      const cell = inner.appendChild(cellHtml(id, index, i, j));
+      cellDivs.push(cell);
     });
     inner.appendChild(div('gutter_label')).innerHTML = String(8 - j);
   });
   FILE_HEADERS.forEach(str => inner.appendChild(div('gutter_label')).innerHTML = str);
 
-  return outer;
+  return {root: outer, cellDivs: cellDivs.reverse()};
 }
 
+/**
+ * @returns {LocalState}
+ */
 function createBoard() {
-  const board = createBoardHtml();
+  const {root: board, cellDivs} = createBoardHtml();
   document.body.appendChild(board);
+
+  const L = {
+    G: parseFen(FEN_NEW_GAME),
+    currentOverlay: '',
+    html: {
+      root: board,
+      cells: cellDivs,
+    },
+    arrowMap: new Map,
+    validationMode: 'strict',
+    reflectTimer: 0,
+    currentCell_i: NO_CELL_I,
+    currentCell_n: NO_CELL,
+    currentTarget_i: NO_CELL_I,
+
+
+    // TODO next:
+    // - history
+    // - alt-lines?
+  };
 
   board.addEventListener('contextmenu', e => e.preventDefault()); // hide context menu
   board.addEventListener('pointerdown', e => {
@@ -118,15 +147,15 @@ function createBoard() {
           const dx = Number((M.pointerOverCellI % 8n) - (M.pointerDownCellI % 8n));
           const dy = Number((M.pointerOverCellI / 8n) - (M.pointerDownCellI / 8n));
 
-          const ow = L.cellDivs[M.pointerDownCellI].offsetWidth;
-          const oh = L.cellDivs[M.pointerDownCellI].offsetHeight;
+          const ow = L.html.cells[M.pointerDownCellI].offsetWidth;
+          const oh = L.html.cells[M.pointerDownCellI].offsetHeight;
 
           if (!M.currentArrow) {
             M.currentArrow = board.appendChild(document.createElement('div'));
             M.currentArrow.className = 'arrow';
             // Absolute positioning of the arrow on the board
-            M.currentArrow.style.top = L.cellDivs[M.pointerDownCellI].offsetTop + 'px';
-            M.currentArrow.style.left = L.cellDivs[M.pointerDownCellI].offsetLeft + 'px';
+            M.currentArrow.style.top = L.html.cells[M.pointerDownCellI].offsetTop + 'px';
+            M.currentArrow.style.left = L.html.cells[M.pointerDownCellI].offsetLeft + 'px';
           }
           const odlx = dx === 0 ? ow * 0.5 : dx > 0 ? ow * 0.2 : ow * 0.8;
           const odly = dy === 0 ? oh * 0.5 : dy > 0 ? oh * 0.2 : oh * 0.8;
@@ -204,5 +233,7 @@ function createBoard() {
     M.currentArrow = undefined;
     M.pointerDownCellI = NO_CELL_I;
   });
+
+  return L;
 }
 

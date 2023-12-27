@@ -1,3 +1,9 @@
+/**
+ * @param {string} [cls]
+ * @param {Element} [parent]
+ * @param {...Element} children
+ * @returns {Element}
+ */
 function div(cls = '', parent, ...children) {
   const div = document.createElement('div');
   if (cls) div.className = cls;
@@ -6,6 +12,11 @@ function div(cls = '', parent, ...children) {
   return div;
 }
 
+/**
+ * @param {string} legend
+ * @param {Element} [parent]
+ * @returns {Element}
+ */
 function fieldset(legend, parent) {
   const fs = document.createElement('fieldset');
   fs.appendChild(document.createElement('legend')).innerHTML = legend;
@@ -13,8 +24,19 @@ function fieldset(legend, parent) {
   return fs;
 }
 
+/**
+ * @param {string} iClass
+ * @param {string} iType
+ * @param {string} iId
+ * @param {string} iName
+ * @param {string} iValue
+ * @param {boolean} iChecked
+ * @param {string} sClass
+ * @param {string} sValue
+ * @param {boolean} [dimmable]
+ * @returns {Element[]} [label, input] (an array for easier local consts)
+ */
 function toggle(iClass, iType, iId, iName, iValue, iChecked, sClass, sValue, dimmable) {
-  // <label><input class="turn_input" type="radio" id="$turnWhite" name="turn" value="white" checked/><span class="turn_button">white</span></label>
   const label = document.createElement('label');
   const input = document.createElement('input');
   const span = document.createElement('label');
@@ -32,10 +54,20 @@ function toggle(iClass, iType, iId, iName, iValue, iChecked, sClass, sValue, dim
   span.className = sClass + (dimmable ? ' dimmable' : '');
   span.innerHTML = sValue;
 
-  return label;
+  return [label, input];
 }
 
-function inputAndGo(wrapperClass, inputClass, inputId, inputStyle, inputPattern, inputValue, buttonText, handler) {
+/**
+ * @param {string} wrapperClass
+ * @param {string} [inputClass]
+ * @param {string} [inputStyle]
+ * @param {string} [inputPattern]
+ * @param {string} [inputValue]
+ * @param {string} buttonText
+ * @param {Function} [handler]
+ * @returns {{input: Element, wrap: Element}}
+ */
+function inputAndGo(wrapperClass, inputClass, inputStyle, inputPattern, inputValue, buttonText, handler) {
   const wrap = div(wrapperClass);
 
   const input = document.createElement('input');
@@ -50,9 +82,18 @@ function inputAndGo(wrapperClass, inputClass, inputId, inputStyle, inputPattern,
   if (handler) go.addEventListener('pointerup', handler);
   wrap.appendChild(go);
 
-  return wrap;
+  return {wrap, input};
 }
 
+/**
+ * @param {string} type
+ * @param {string} name
+ * @param {string} value
+ * @param {string} text
+ * @param {string} [id]
+ * @param {boolean} [checked]
+ * @returns {HTMLLabelElement}
+ */
 function labeledInput(type, name, value, text, id, checked = false) {
   const label = document.createElement('label');
   const input = document.createElement('input');
@@ -67,44 +108,82 @@ function labeledInput(type, name, value, text, id, checked = false) {
   return label;
 }
 
-function menuTurn() {
+/**
+ * @param {LocalState} L
+ * @returns {Element}
+ */
+function menuTurn(L) {
   const turn = fieldset('Turn');
-  //turn.id = '$turn';
-  turn.style.float = 'left';
-  div('turn_block', turn, toggle('turn_input', 'radio', '$turnWhite', 'turn', 'white', true, 'turn_button', 'white'));
-  div('turn_block', turn, toggle('turn_input', 'radio', '$turnBlack', 'turn', 'black', false, 'turn_button', 'black'));
+  turn.style = 'float: left';
+
+  const [labelW, inputW] = toggle('turn_input', 'radio', '', 'turn', 'white', true, 'turn_button', 'white');
+  div('turn_block', turn, labelW);
+  const [labelB, inputB] = toggle('turn_input', 'radio', '', 'turn', 'black', true, 'turn_button', 'black');
+  div('turn_block', turn, labelB);
+
+  L.html.turnWhite = inputW;
+  L.html.turnBlack = inputB;
 
   return turn;
 }
 
-function menuCastling() {
+/**
+ * @param {LocalState} L
+ * @returns {Element}
+ */
+function menuCastling(L) {
   const castling = fieldset('Castling');
-  //turn.id = '$castling';
-  div('turn_block', castling, toggle('turn_input', 'checkbox', '$castleQueensideWhite', '', '', true, 'turn_button', 'White<br/>Queenside', true));
-  div('turn_block', castling, toggle('turn_input', 'checkbox', '$castleKingsideWhite', '', '', true, 'turn_button', 'White<br/>Kingside', true));
-  div('turn_block', castling, toggle('turn_input', 'checkbox', '$castleQueensideBlack', '', '', true, 'turn_button', 'Black<br/>Queenside', true));
-  div('turn_block', castling, toggle('turn_input', 'checkbox', '$castleKingsideBlack', '', '', true, 'turn_button', 'Black<br/>Kingside', true));
 
-  castling.addEventListener('change', e => {
-    if (e.target.id) {
-      L.G[e.target.id.slice(1)] = !L.G[e.target.id.slice(1)];
-      reflect(L.G);
-    }
+  const [labelQW, inputQW] = toggle('turn_input', 'checkbox', '', '', '', true, 'turn_button', 'White<br/>Queenside', true);
+  const [labelKW, inputKW] = toggle('turn_input', 'checkbox', '', '', '', true, 'turn_button', 'White<br/>Kingside', true);
+  const [labelQB, inputQB] = toggle('turn_input', 'checkbox', '', '', '', true, 'turn_button', 'Black<br/>Queenside', true);
+  const [labelKB, inputKB] = toggle('turn_input', 'checkbox', '', '', '', true, 'turn_button', 'Black<br/>Queenside', true);
+
+  div('turn_block', castling, labelQW);
+  div('turn_block', castling, labelKW);
+  div('turn_block', castling, labelQB);
+  div('turn_block', castling, labelKB);
+
+  L.html.castleQueensideWhite = inputQW;
+  L.html.castleKingsideWhite = inputKW;
+  L.html.castleQueensideBlack = inputQB;
+  L.html.castleKingsideBlack = inputKB;
+
+  L.html.castleQueensideWhite.addEventListener('change', () => {
+    L.G.castleQueensideWhite = !L.G.castleQueensideWhite;
+    reflect(L.G);
+  });
+  L.html.castleKingsideWhite.addEventListener('change', () => {
+    L.G.castleKingsideWhite = !L.G.castleKingsideWhite;
+    reflect(L.G);
+  });
+  L.html.castleQueensideBlack.addEventListener('change', () => {
+    L.G.castleQueensideBlack = !L.G.castleQueensideBlack;
+    reflect(L.G);
+  });
+  L.html.castleKingsideBlack.addEventListener('change', () => {
+    L.G.castleKingsideBlack = !L.G.castleKingsideBlack;
+    reflect(L.G);
   });
 
   return castling;
 }
 
-function menuEnPassant() {
+/**
+ * @param {LocalState} L
+ * @returns {Element}
+ */
+function menuEnPassant(L) {
   const label = document.createElement('label');
   label.style = 'display: inline-block; margin: 5px 0;'; // TODO
   label.innerHTML = 'En passant: ';
-  const input = document.createElement('label');
-  input.id = '$enpassant';
+  const input = document.createElement('input');
   input.className = 'enpassanter';
   input.pattern = 'no|[a-hA-H] ?[45]';
   input.value = 'no';
   label.appendChild(input);
+
+  L.html.enpassant = input;
 
   input.addEventListener('change', e => {
     L.G.enpassant = idToIndex[String(e.target.value).toLowerCase().replace(/ /g, '')] ?? NO_CELL_I;
@@ -114,16 +193,21 @@ function menuEnPassant() {
   return label;
 }
 
-function menuFullTurn() {
+/**
+ * @param {LocalState} L
+ * @returns {Element}
+ */
+function menuFullTurn(L) {
   const label = document.createElement('label');
   label.style = 'display: inline-block; margin: 5px 0;'; // TODO
   label.innerHTML = 'Full turn: ';
-  const input = document.createElement('label');
-  input.id = '$turns';
+  const input = document.createElement('input');
   input.className = 'enpassanter'; // TODO
   input.pattern = '\d+';
   input.value = '1';
   label.appendChild(input);
+
+  L.html.turns = input;
 
   input.addEventListener('change', e => {
     L.G.wholeTurnCounter = parseInt(e.target.value, 10) || 0;
@@ -132,16 +216,21 @@ function menuFullTurn() {
   return label;
 }
 
-function menuFiftyTurnRule() {
+/**
+ * @param {LocalState} L
+ * @returns {Element}
+ */
+function menuFiftyTurnRule(L) {
   const label = document.createElement('label');
   label.style = 'display: inline-block; margin: 5px 0;'; // TODO
   label.innerHTML = '50 turn: ';
-  const input = document.createElement('label');
-  input.id = '$turn50';
+  const input = document.createElement('input');
   input.className = 'enpassanter'; // TODO
   input.pattern = '\d+';
   input.value = '0';
   label.appendChild(input);
+
+  L.html.turn50 = input;
 
   input.addEventListener('change', e => {
     L.G.fiftyTurnCounter = parseInt(e.target.value, 10) || 0;
@@ -150,12 +239,17 @@ function menuFiftyTurnRule() {
   return label;
 }
 
-function menuThreefold() {
+/**
+ * @param {LocalState} L
+ * @returns {Element}
+ */
+function menuThreefold(L) {
   const div = document.createElement('div');
   div.InnerHTML = 'Threefold repeat: ';
   const span = document.createElement('span');
-  span.id = '$three';
   div.appendChild(span);
+
+  L.html.three = span;
 
   return div;
 }
@@ -166,88 +260,96 @@ function menuMaterial() {
   const divWhite = document.createElement('div');
   divWhite.innerHTML = 'White: ';
   const spanWhite = document.createElement('span');
-  spanWhite.id = '$material_white';
   divWhite.appendChild(spanWhite);
   fs.appendChild(divWhite);
 
   const divBlack = document.createElement('div');
   divBlack.innerHTML = 'Black: ';
   const spanBlack = document.createElement('span');
-  spanBlack.id = '$material_black';
   divBlack.appendChild(spanBlack);
   fs.appendChild(divBlack);
+
+  L.html.materialWhite = spanWhite;
+  L.html.materialBlack = spanBlack;
 
   return fs;
 }
 
-function menuCurrentGame() {
+/**
+ * @param {LocalState} L
+ * @returns {Element}
+ */
+function menuCurrentGame(L) {
   const current = fieldset('Current game');
 
-  current.appendChild(menuTurn());
-  current.appendChild(menuCastling());
-  div('', current, menuEnPassant(), menuFullTurn())//.style = 'clear: left';
-  div('', current, menuFiftyTurnRule(), menuThreefold());
+  current.appendChild(menuTurn(L));
+  current.appendChild(menuCastling(L));
+  div('', current, menuEnPassant(L), menuFullTurn(L))//.style = 'clear: left';
+  div('', current, menuFiftyTurnRule(L), menuThreefold(L));
   current.appendChild(menuMaterial());
 
   return current;
 }
 
-function menuMoveList() {
+/**
+ * @param {LocalState} L
+ * @returns {Element}
+ */
+function menuMoveList(L) {
   const moveList = fieldset('Move list');
-  moveList.id = '$movePlayer';
   moveList.className = 'move_player'; // TODO: use better name?
 
+  L.html.movePlayer = moveList;
+
   const group = div('move_player_controls', moveList);
-  group.id = '$pngcontrols';
 
   const bb = document.createElement('button');
-  //bb.id = '$zeropgn';
   bb.className = 'move_player_button';
   bb.innerHTML = '&lt;&lt;';
-  bb.addEventListener('pointerup', e => fwdPgn(-Infinity));
+  bb.addEventListener('pointerup', () => fwdPgn(L, -Infinity));
   group.appendChild(bb);
 
   const b = document.createElement('button');
-  //b.id = '$backpgn';
   b.className = 'move_player_button';
   b.innerHTML = '&lt;';
-  b.addEventListener('pointerup', e => fwdPgn(-1));
+  b.addEventListener('pointerup', () => fwdPgn(L, -1));
   group.appendChild(b);
 
   const pp = document.createElement('button');
-  //pp.id = '$togglepgn';
   pp.className = 'move_player_button';
   pp.innerHTML = '▶︎/⏸';
-  pp.addEventListener('pointerup', e => togglePgn());
+  pp.addEventListener('pointerup', () => togglePgn(L));
   group.appendChild(pp);
 
   const f = document.createElement('button');
-  //f.id = '$fwdpgn';
   f.className = 'move_player_button';
   f.innerHTML = '&gt;';
-  f.addEventListener('pointerup', e => fwdPgn(1));
+  f.addEventListener('pointerup', () => fwdPgn(L, 1));
   group.appendChild(f);
 
   const ff = document.createElement('button');
-  //f.id = '$allpgn';
   ff.className = 'move_player_button';
   ff.innerHTML = '&gt;&gt;';
-  ff.addEventListener('pointerup', e => fwdPgn(Infinity));
+  ff.addEventListener('pointerup', () => fwdPgn(L, Infinity));
   group.appendChild(ff);
 
   const moves = document.createElement('pre');
-  moves.id = '$moves';
   moves.style = 'color:#555;'; // TODO
   moveList.appendChild(moves);
+
+  L.html.moves = moves;
 
   return moveList;
 }
 
-function menuPng() {
+/**
+ * @param {LocalState} L
+ * @returns {Element}
+ */
+function menuPng(L) {
   const png = fieldset('Png');
 
   const ta = document.createElement('textarea');
-  ta.id = '$pgn';
   ta.style.marginRight = '10px'; // TODO
   // Game of the century
   ta.value = `
@@ -274,33 +376,45 @@ Rc2# 0-1
   `.trim();
   png.appendChild(ta);
 
+  L.html.pgnInput = ta;
+
   const go = document.createElement('button');
-  go.id = '$initpgn';
   go.innerHTML = 'Load png';
-  go.addEventListener('pointerup', e => initPgn($pgn.value));
+  go.addEventListener('pointerup', () => initPgn(L, L.html.pgnInput.value));
   png.appendChild(go);
 
   return png;
 }
 
-function menuFen() {
+/**
+ * @param {LocalState} L
+ * @returns {Element}
+ */
+function menuFen(L) {
   const fen = fieldset('FEN');
 
-  const wrap = inputAndGo('fen_input_wrapper', 'fen_input', '$fen_input', 'width: 350px;', '([rnbqkpRNBQKP1-8\\/]+){8} [wb] [KQkq\\-]+ (-|[a-h][1-8]) \\d+ \\d+', '', 'Load', e => reflect(parseFen($fen_input.value)));
+  const {wrap, input} = inputAndGo('fen_input_wrapper', 'fen_input', 'width: 350px;', '([rnbqkpRNBQKP1-8\\/]+){8} [wb] [KQkq\\-]+ (-|[a-h][1-8]) \\d+ \\d+', '', 'Load', () => reflect(parseFen(L.html.fenInput.value)));
   fen.appendChild(wrap);
+
+  L.html.fenInput = input;
 
   const wrap2 = div('fen_input', fen);
   wrap2.innerHTML = 'Current: ';
 
   const current = document.createElement('input');
-  current.id = '$fennow';
   current.className = 'fen_current';
   wrap2.appendChild(current);
+
+  L.html.fenCurrent = current;
 
   return fen;
 }
 
-function menuPromotion() {
+/**
+ * @param {LocalState} L
+ * @returns {Element}
+ */
+function menuPromotion(L) {
   const promo = fieldset('Promotion');
 
   promo.appendChild(labeledInput('radio', 'promo', 'queen', ' queen', undefined, true));
@@ -316,23 +430,31 @@ function menuPromotion() {
   return promo;
 }
 
-function menuValidation() {
+/**
+ * @param {LocalState} L
+ * @returns {Element}
+ */
+function menuValidation(L) {
   const fs = fieldset('Move validation enforcement');
 
   fs.appendChild(labeledInput('radio', 'validation', 'none', ' none '));
   fs.appendChild(labeledInput('radio', 'validation', 'strict', ' strict ', undefined, true));
   const showAll = fs.appendChild(labeledInput('checkbox', '', '', ' Show all pseudo moves', '$show_pseudo_moves', true));
 
-  fs.addEventListener('change', e => {
+  fs.addEventListener('change', () => {
     L.validationMode = document.querySelector('input[name=validation]:checked').value;
   });
 
-  showAll.addEventListener('change', e => reflect(L.G));
+  showAll.addEventListener('change', () => reflect(L.G));
 
   return fs;
 }
 
-function menuLayers() {
+/**
+ * @param {LocalState} L
+ * @returns {Element}
+ */
+function menuLayers(L) {
   const layers = fieldset('Layer view');
 
   layers.appendChild(labeledInput('radio', 'underlay', 'none', ' none'));
@@ -361,7 +483,7 @@ function menuLayers() {
   layers.appendChild(document.createTextNode(' '));
   layers.appendChild(labeledInput('radio', 'underlay', 'is_checked_black', ' isChecked.black'));
 
-  layers.addEventListener('change', e => {
+  layers.addEventListener('change', () => {
     S.currentOverlay = document.querySelector('input[name=underlay]:checked').value;
     reflect(L.G);
   });
@@ -369,7 +491,11 @@ function menuLayers() {
   return layers;
 }
 
-function menuCellIdHint() {
+/**
+ * @param {LocalState} L
+ * @returns {Element}
+ */
+function menuCellIdHint(L) {
   const layers = fieldset('Cell ID hint');
 
   layers.appendChild(labeledInput('radio', 'cell_id', 'cell_id_none', ' none', undefined, true));
@@ -377,22 +503,26 @@ function menuCellIdHint() {
   layers.appendChild(labeledInput('radio', 'cell_id', 'cell_id_coord', ' coord'));
   layers.appendChild(labeledInput('radio', 'cell_id', 'cell_id_both', ' both'));
 
-  layers.addEventListener('change', e => {
-    $board.classList.remove('cell_id_coord', 'cell_id_index', 'cell_id_both', 'cell_id_none');
-    $board.classList.add(document.querySelector('input[name=cell_id]:checked').value);
+  layers.addEventListener('change', () => {
+    L.html.root.classList.remove('cell_id_coord', 'cell_id_index', 'cell_id_both', 'cell_id_none');
+    L.html.root.classList.add(document.querySelector('input[name=cell_id]:checked').value);
   });
 
   return layers;
 }
 
-function menuArrowControl() {
-  const layers = fieldset('Cell ID hint');
+/**
+ * @param {LocalState} L
+ * @returns {Element}
+ */
+function menuArrowControl(L) {
+  const layers = fieldset('Arrow drawing');
 
   layers.appendChild(labeledInput('radio', 'auto_arrow_remove', 'none', ' none'));
   layers.appendChild(labeledInput('radio', 'auto_arrow_remove', 'select', ' after cell select', undefined, true));
   layers.appendChild(labeledInput('radio', 'auto_arrow_remove', 'move', ' after any move'));
 
-  layers.addEventListener('change', e => {
+  layers.addEventListener('change', () => {
     S.autoArrowClear = document.querySelector('input[name=auto_arrow_remove]:checked').value;
   });
 
@@ -407,18 +537,22 @@ function menuArrowControl() {
   return layers;
 }
 
-function menuFenPresets() {
-  const presets = fieldset('Cell ID hint');
+/**
+ * @param {LocalState} L
+ * @returns {Element}
+ */
+function menuFenPresets(L) {
+  const presets = fieldset('FEN presets');
   //presets.id = '$fens'; // TODO
 
-  presets.appendChild(inputAndGo('', '', '$fen1', 'width: 350px;', '([rnbqkpRNBQKP1-8\\/]+){8} [wb] [KQkq\\-]+ (-|[a-h][1-8]) \\d+ \\d+', 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', 'start'));
-  presets.appendChild(inputAndGo('', '', '$fen2', 'width: 350px;', '([rnbqkpRNBQKP1-8\\/]+){8} [wb] [KQkq\\-]+ (-|[a-h][1-8]) \\d+ \\d+', 'rnbq1bnr/pppppppp/8/4Q3/3k4/8/PPPPPPPP/RNB1KBNR b KQ - 0 1', 'queen ray check over'));
-  presets.appendChild(inputAndGo('', '', '$fen3', 'width: 350px;', '([rnbqkpRNBQKP1-8\\/]+){8} [wb] [KQkq\\-]+ (-|[a-h][1-8]) \\d+ \\d+', 'r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1', 'castling'));
-  presets.appendChild(inputAndGo('', '', '$fen4', 'width: 350px;', '([rnbqkpRNBQKP1-8\\/]+){8} [wb] [KQkq\\-]+ (-|[a-h][1-8]) \\d+ \\d+', 'rnbqk1nr/pppppppp/4b3/8/8/4B3/PPPPPPPP/RN1QKBNR b KQkq - 0 1', 'regression'));
-  presets.appendChild(inputAndGo('', '', '$fen5', 'width: 350px;', '([rnbqkpRNBQKP1-8\\/]+){8} [wb] [KQkq\\-]+ (-|[a-h][1-8]) \\d+ \\d+', 'rnbq1bnr/ppp2ppp/8/k2pP3/p7/8/PPPP1PPP/RNBQKBNR b - d5 0 2', 'en-passant'));
-  presets.appendChild(inputAndGo('', '', '$fen6', 'width: 350px;', '([rnbqkpRNBQKP1-8\\/]+){8} [wb] [KQkq\\-]+ (-|[a-h][1-8]) \\d+ \\d+', 'r1p1k1n1/1p1p1p1p/p1b1p1p1/1n1q1b1r/R1B1K1N1/1P1P1P1P/P1P1P1P1/1N1Q1B1R b q - 2 10', 'stress?'));
-  presets.appendChild(inputAndGo('', '', '$fen7', 'width: 350px;', '([rnbqkpRNBQKP1-8\\/]+){8} [wb] [KQkq\\-]+ (-|[a-h][1-8]) \\d+ \\d+', '4k3/8/q1q1q3/8/q3q3/8/q1q1q3/4K3 b - - 6 7', 'queened'));
-  presets.appendChild(inputAndGo('', '', '$fen8', 'width: 350px;', '([rnbqkpRNBQKP1-8\\/]+){8} [wb] [KQkq\\-]+ (-|[a-h][1-8]) \\d+ \\d+', 'rnb2bn1/ppp1pppp/7Q/4KQ1r/8/2p3k1/1PPPPPPP/RNBQ1BNR b - - 0 6', 'pgn'));
+  presets.appendChild(inputAndGo('', '', 'width: 350px;', '([rnbqkpRNBQKP1-8\\/]+){8} [wb] [KQkq\\-]+ (-|[a-h][1-8]) \\d+ \\d+', 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', 'start').wrap);
+  presets.appendChild(inputAndGo('', '', 'width: 350px;', '([rnbqkpRNBQKP1-8\\/]+){8} [wb] [KQkq\\-]+ (-|[a-h][1-8]) \\d+ \\d+', 'rnbq1bnr/pppppppp/8/4Q3/3k4/8/PPPPPPPP/RNB1KBNR b KQ - 0 1', 'queen ray check over').wrap);
+  presets.appendChild(inputAndGo('', '', 'width: 350px;', '([rnbqkpRNBQKP1-8\\/]+){8} [wb] [KQkq\\-]+ (-|[a-h][1-8]) \\d+ \\d+', 'r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1', 'castling').wrap);
+  presets.appendChild(inputAndGo('', '', 'width: 350px;', '([rnbqkpRNBQKP1-8\\/]+){8} [wb] [KQkq\\-]+ (-|[a-h][1-8]) \\d+ \\d+', 'rnbqk1nr/pppppppp/4b3/8/8/4B3/PPPPPPPP/RN1QKBNR b KQkq - 0 1', 'regression').wrap);
+  presets.appendChild(inputAndGo('', '', 'width: 350px;', '([rnbqkpRNBQKP1-8\\/]+){8} [wb] [KQkq\\-]+ (-|[a-h][1-8]) \\d+ \\d+', 'rnbq1bnr/ppp2ppp/8/k2pP3/p7/8/PPPP1PPP/RNBQKBNR b - d5 0 2', 'en-passant').wrap);
+  presets.appendChild(inputAndGo('', '', 'width: 350px;', '([rnbqkpRNBQKP1-8\\/]+){8} [wb] [KQkq\\-]+ (-|[a-h][1-8]) \\d+ \\d+', 'r1p1k1n1/1p1p1p1p/p1b1p1p1/1n1q1b1r/R1B1K1N1/1P1P1P1P/P1P1P1P1/1N1Q1B1R b q - 2 10', 'stress?').wrap);
+  presets.appendChild(inputAndGo('', '', 'width: 350px;', '([rnbqkpRNBQKP1-8\\/]+){8} [wb] [KQkq\\-]+ (-|[a-h][1-8]) \\d+ \\d+', '4k3/8/q1q1q3/8/q3q3/8/q1q1q3/4K3 b - - 6 7', 'queened').wrap);
+  presets.appendChild(inputAndGo('', '', 'width: 350px;', '([rnbqkpRNBQKP1-8\\/]+){8} [wb] [KQkq\\-]+ (-|[a-h][1-8]) \\d+ \\d+', 'rnb2bn1/ppp1pppp/7Q/4KQ1r/8/2p3k1/1PPPPPPP/RNBQ1BNR b - - 0 6', 'pgn').wrap);
 
   presets.addEventListener('pointerup', e => {
     if (e.target.previousElementSibling?.value) {
@@ -429,7 +563,11 @@ function menuFenPresets() {
   return presets;
 }
 
-function menuThreeStatus() {
+/**
+ * @param {LocalState} L
+ * @returns {Element}
+ */
+function menuThreeStatus(L) {
   const thresh = fieldset('Threefold hash');
 
   const label = document.createElement('label');
@@ -444,7 +582,11 @@ function menuThreeStatus() {
   return thresh;
 }
 
-function menuPly() {
+/**
+ * @param {LocalState} L
+ * @returns {Element}
+ */
+function menuPly(L) {
   const ply = fieldset('Ply executor');
 
   const label = document.createElement('label');
@@ -479,34 +621,46 @@ function menuPly() {
   return ply;
 }
 
-function menuDebug() {
+/**
+ * @param {LocalState} L
+ * @returns {Element}
+ */
+function menuDebug(L) {
   const debug = fieldset('Debug');
 
-  debug.appendChild(menuValidation());
-  debug.appendChild(menuLayers());
-  debug.appendChild(menuCellIdHint());
-  debug.appendChild(menuArrowControl());
-  debug.appendChild(menuFenPresets());
-  debug.appendChild(menuThreeStatus());
-  debug.appendChild(menuPly());
+  debug.appendChild(menuValidation(L));
+  debug.appendChild(menuLayers(L));
+  debug.appendChild(menuCellIdHint(L));
+  debug.appendChild(menuArrowControl(L));
+  debug.appendChild(menuFenPresets(L));
+  debug.appendChild(menuThreeStatus(L));
+  debug.appendChild(menuPly(L));
 
   return debug;
 }
 
-function createMenuHtml() {
+/**
+ * @param {LocalState} L
+ * @returns {Element}
+ */
+function createMenuHtml(L) {
   const menu = div('menu');
 
-  menu.appendChild(menuCurrentGame());
-  menu.appendChild(menuMoveList());
-  menu.appendChild(menuPng());
-  menu.appendChild(menuFen());
-  menu.appendChild(menuPromotion());
-  menu.appendChild(menuDebug());
+  menu.appendChild(menuCurrentGame(L));
+  menu.appendChild(menuMoveList(L));
+  menu.appendChild(menuPng(L));
+  menu.appendChild(menuFen(L));
+  menu.appendChild(menuPromotion(L));
+  menu.appendChild(menuDebug(L));
 
   return menu;
 }
 
-function createMenu() {
-  const menu = createMenuHtml();
+/**
+ * @param {LocalState} L
+ * @returns {Element}
+ */
+function createMenu(L) {
+  const menu = createMenuHtml(L);
   document.body.appendChild(menu);
 }
