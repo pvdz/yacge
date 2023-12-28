@@ -31,7 +31,7 @@ It's not finished. It will probably never be finished. It's mostly here to serve
 
 Eh. None :)
 
-What you see is what you get. No dependencies, no installation or anything. Just drag chess.html into a browser tab and it should just work.
+What you see is what you get. No dependencies, no installation or anything. Just drag the `index.html` file into a browser tab and it should just work.
 
 Alternatively you could fire up a local webserver and serve it that way, it doesn't really matter tbh.
 
