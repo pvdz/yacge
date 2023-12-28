@@ -314,45 +314,43 @@ function menuMoveList(L) {
   const moveList = fieldset('Move list');
   moveList.className = 'move_player'; // TODO: use better name?
 
-  L.html.movePlayer = moveList;
-
   const group = div('move_player_controls', moveList);
 
   const bb = document.createElement('button');
   bb.className = 'move_player_button';
   bb.innerHTML = '&lt;&lt;';
-  bb.addEventListener('pointerup', () => fwdPgn(L, -Infinity));
+  bb.addEventListener('pointerup', () => reflectHistory(L, -Infinity));
   group.appendChild(bb);
 
   const b = document.createElement('button');
   b.className = 'move_player_button';
   b.innerHTML = '&lt;';
-  b.addEventListener('pointerup', () => fwdPgn(L, -1));
+  b.addEventListener('pointerup', () => reflectHistory(L, -1));
   group.appendChild(b);
 
   const pp = document.createElement('button');
   pp.className = 'move_player_button';
   pp.innerHTML = '▶︎/⏸';
-  pp.addEventListener('pointerup', () => togglePgn(L));
+  pp.addEventListener('pointerup', () => toggleHistoryAutoPlay(L));
   group.appendChild(pp);
 
   const f = document.createElement('button');
   f.className = 'move_player_button';
   f.innerHTML = '&gt;';
-  f.addEventListener('pointerup', () => fwdPgn(L, 1));
+  f.addEventListener('pointerup', () => reflectHistory(L, 1));
   group.appendChild(f);
 
   const ff = document.createElement('button');
   ff.className = 'move_player_button';
   ff.innerHTML = '&gt;&gt;';
-  ff.addEventListener('pointerup', () => fwdPgn(L, Infinity));
+  ff.addEventListener('pointerup', () => reflectHistory(L, Infinity));
   group.appendChild(ff);
 
   const moves = document.createElement('pre');
   moves.style = 'color:#555;'; // TODO
   moveList.appendChild(moves);
 
-  L.html.moves = moves;
+  L.html.history = moves;
 
   return moveList;
 }
@@ -395,7 +393,7 @@ Rc2# 0-1
 
   const go = document.createElement('button');
   go.innerHTML = 'Load png';
-  go.addEventListener('pointerup', () => initPgn(L, L.html.pgnInput.value));
+  go.addEventListener('pointerup', () => loadPgn(L, L.html.pgnInput.value));
   png.appendChild(go);
 
   return png;

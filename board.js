@@ -64,11 +64,22 @@ function createBoard(uid) {
     currentCell_i: NO_CELL_I,
     currentCell_n: NO_CELL,
     currentTarget_i: NO_CELL_I,
-
-
-    // TODO next:
-    // - history
-    // - alt-lines?
+    history: {
+      end: '*',
+      index: 0,
+      moves: [
+        {
+          fen: FEN_NEW_GAME,
+          white: false,
+          piece: '',
+          from: '',
+          to: '',
+          an: '',
+        },
+      ],
+    },
+    historyIndex: 0,
+    autoPlayTimer: 0,
   };
 
   board.addEventListener('contextmenu', e => e.preventDefault()); // hide context menu

@@ -24,6 +24,9 @@ const blackPawn = '♟'; //   - Unicode: \u265F or &#9823;
  * A1 A2 A3 A4 A5 A6 A7 A8
  * */
 
+/**
+ * @type {Record<string, number>}
+ */
 const idToIndex = {
   a8: 63n,
   b8: 62n,
@@ -90,6 +93,9 @@ const idToIndex = {
   g1: 1n,
   h1: 0n,
 };
+/**
+ * @type {Record<number, string>}
+ */
 const indexToId = {
   63n: 'a8',
   62n: 'b8',

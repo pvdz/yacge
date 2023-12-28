@@ -1,9 +1,4 @@
 /**
- * @type {{pgn: PgnGame, timer: number, halfTurn: number, fullTurn: number}} Note: both turns offset at 1 cause that makes more sense here.
- */
-let pgnPlayer;
-
-/**
  * @typedef {Object} Ply
  * @property {'ply'} type
  * @property {string} sub
@@ -18,7 +13,6 @@ let pgnPlayer;
  * @property {boolean} mated
  * @property {string} wtf
  * @property {string} raw The input for this ply
- * @property {string} [final]
  * @property {string|undefined} [fromResolved] Once resolved, this should hold the "from" cell id (string) for this ply. It is a computed value.
  */
 
@@ -325,205 +319,34 @@ function parsePgnPly(part, forWhite) {
  * @param {boolean} [debug]
  * @returns {Element}
  */
-function initPgn(L, str, debug = false) {
+function loadPgn(L, str, debug = false) {
   const pgnGame = parsePgn(str);
 
   // Create fresh starting game.
   const G = parseFen(FEN_NEW_GAME);
+
+  L.history.moves.length = 0;
+  L.history.moves.push({turn: 0, fen: FEN_NEW_GAME, white: false, from: '', to: '', an: ''});
+  L.history.end = '*'; // "unfinished" or "ending unknown"
+  L.history.index = 0;
 
   // Replay the entire game, cache a FEN string after each step of the way.
   // This way we can revive a fresh board state based on these FENs.
   // This will also compute the "from" cell for every move, which we must be determined from the "current" game state...
   for (let i=0; i<pgnGame.moves.length; ++i) {
     const move = pgnGame.moves[i];
-    if (move.white) pgnPreComputeStep(G, pgnGame, move.white, i * 2 + 1, i, debug);
-    if (move.black) pgnPreComputeStep(G, pgnGame, move.black, i * 2 + 2, i, debug);
-  }
-
-  pgnPlayer = {pgn: pgnGame, timer: undefined, halfTurn: 0, fullTurn: 0};
-
-  reflectPgn(L);
-  L.html.movePlayer.style.display = 'block';
-}
-
-/**
- * @param G {Game}
- * @param pgnGame {PgnGame}
- * @param ply {Ply|undefined}
- * @param halfGameTurn {number} Offset 1, increments for each move each player makes
- * @param fullGameTurn {number} Offset 1, increments after each move the black player makes
- */
-function pgnPreComputeStep(G, pgnGame, ply, halfGameTurn, fullGameTurn, debug = false) {
-  const forWhite = halfGameTurn % 2 === 1; // Offset at 1 because 0 is the starting board
-  const {i: fromi, n: fromn} = findSourceCellFromPgnMove(G, forWhite, ply.piece, ply.to, ply.fromFile, ply.fromRank, debug);
-  const toi = idToIndex[ply.to];
-  const ton = 1n << toi;
-  if (debug) console.warn(`Attempting turn ${fullGameTurn}, moving a ${forWhite?'white':'black'} ${ply.piece}, from`, indexToId[fromi], 'to', indexToId[toi], ply);
-  ply.final = `${ply.piece} from ${indexToId[fromi]} to ${indexToId[toi]}`;
-  ply.fromResolved = indexToId[fromi];
-  makeCompleteMove(G, fromi, toi, fromn, ton, {B:'bishop', N: 'knight', R: 'rook', Q: 'queen'}[ply.promote] ?? 'queen');
-  pgnGame.fenCache[halfGameTurn] = getFenString(G);
-}
-
-/**
- * @param {LocalState} L
- * @param {PgnGame} pgnGame
- * @param {number} halfTurn Zero is the (constant) start of any game, one is after white made their first move, two is after black's first move, and so forth
- * @param {number} fullTurn Offset 1
- */
-function displayPgnMoveList(L, pgnGame, halfTurn, fullTurn) {
-  const pre = L.html.moves;
-  pre.innerHTML = '';
-
-  pre.appendChild(document.createTextNode(`half: ${halfTurn}, full: ${fullTurn}\n\n`));
-
-  pgnGame.moves.forEach(move => {
-    const turn = parseInt(move.turn, 10);
-    const isTurn = turn === fullTurn;
-    // Half turns offset at 0 with the start of the board, so the uneven half turns are
-    // after white made a move and even half turns are after black made a move
-    const isWhiteMove = halfTurn % 2 === 1;
-
-    const rowSpan = document.createElement('span');
-
-    const turnSpan = document.createElement('span');
-    turnSpan.innerHTML = move.turn.padStart(3, ' ');
-    turnSpan.addEventListener('pointerup', () => {
-      setPgnPointer(turn * 2 - 1);
-      reflectPgn(L);
-    });
-
-    const whiteLeft = document.createElement('span');
-    if (isTurn && isWhiteMove) {
-      whiteLeft.style = 'background-color: yellow;';
-    } else {
-      whiteLeft.className = 'load_move';
-      whiteLeft.addEventListener('pointerdown', () => {
-        setPgnPointer(turn * 2 - 1);
-        reflectPgn(L);
-      });
+    if (move.white) {
+      const step = preComputeHistoryStep(G, pgnGame, move.white, i * 2 + 1, i+1, debug);
+      L.history.moves.push(step);
     }
-    whiteLeft.innerHTML = move.white ? `${move.white?.piece} ${move.white?.fromResolved} ${move.white?.to}` : `--     `;
-
-    const blackLeft = document.createElement('span');
-    if (isTurn && !isWhiteMove) {
-      blackLeft.style = 'background-color: yellow;';
-    } else {
-      blackLeft.className = 'load_move';
-      blackLeft.addEventListener('pointerdown', () => {
-        setPgnPointer(turn * 2);
-        reflectPgn(L);
-      });
+    if (move.black) {
+      const step = preComputeHistoryStep(G, pgnGame, move.black, i * 2 + 2, i+1, debug);
+      L.history.moves.push(step);
     }
-    blackLeft.innerHTML = move.black ? `${move.black?.piece} ${move.black?.fromResolved} ${move.black?.to}` : `--     `;
-
-    // arr.push(' | ');
-
-    const whiteRight = document.createElement('span');
-    if (isTurn && isWhiteMove) {
-      whiteRight.style = 'background-color: yellow;';
-    } else {
-      whiteRight.className = 'load_move';
-      whiteRight.addEventListener('pointerdown', () => {
-        setPgnPointer(turn * 2 - 1);
-        reflectPgn(L);
-      });
+    if (move.end) {
+      L.history.end = move.end.value || '*';
     }
-    whiteRight.innerHTML = move.white?.raw || '';
-
-    const blackRight = document.createElement('span');
-    if (isTurn && !isWhiteMove) {
-      blackRight.style = 'background-color: yellow;';
-    } else {
-      blackRight.className = 'load_move';
-      blackRight.addEventListener('pointerdown', () => {
-        setPgnPointer(turn * 2);
-        reflectPgn(L);
-      });
-    }
-    blackRight.innerHTML = move.black?.raw || '';
-
-    if (isTurn) rowSpan.style = 'background-color: #eee;';
-    rowSpan.appendChild(turnSpan);
-    rowSpan.appendChild(document.createTextNode(' '));
-    rowSpan.appendChild(whiteLeft);
-    rowSpan.appendChild(document.createTextNode('  '));
-    rowSpan.appendChild(blackLeft);
-    rowSpan.appendChild(document.createTextNode('  |  '));
-    rowSpan.appendChild(whiteRight);
-    rowSpan.appendChild(document.createTextNode(' '.repeat(Math.max(0, 10 - (move.white?.raw || '').length))));
-    rowSpan.appendChild(blackRight);
-    rowSpan.appendChild(document.createTextNode('\n'));
-    if (move.end) rowSpan.appendChild(document.createTextNode(move.end.value));
-
-    pre.appendChild(rowSpan);
-  });
-}
-
-/**
- * @param {LocalState} L
- * @param {string} [str]
- * @returns {Element}
- */
-function togglePgn(L, str) {
-  if (!pgnPlayer) {
-    initPgn(L, str);
   }
 
-  if (pgnPlayer.timer) {
-    clearInterval(pgnPlayer.timer);
-    pgnPlayer.timer = undefined;
-  } else {
-    pgnPlayer.timer = setInterval(() => {
-      fwdPgn(L, 1);
-    }, 1000);
-  }
-}
-
-/**
- * @param {LocalState} L
- * @param [steps=1] {number}
- * @returns {Game}
- */
-function fwdPgn(L, steps = 1) {
-  deltaPgnPointer(L, steps);
-  reflectPgn(L);
-}
-
-/**
- * @param {LocalState} L
- */
-function reflectPgn(L) {
-  const fen = pgnPlayer.pgn.fenCache[pgnPlayer.halfTurn];
-  if (fen === undefined) {
-    console.log('current halfturn has no FEN cache (halfturn', pgnPlayer.halfTurn, ', fen cache size', pgnPlayer.pgn.fenCache.length, ')');
-    return undefined;
-  }
-  const G = parseFen(fen);
-  if (G.turnWhite) {
-    G.prevFrom = idToIndex[pgnPlayer.pgn.moves[G.wholeTurnCounter - 2]?.black?.fromResolved];
-    G.prevTo = idToIndex[pgnPlayer.pgn.moves[G.wholeTurnCounter - 2]?.black?.to];
-  } else {
-    G.prevFrom = idToIndex[pgnPlayer.pgn.moves[G.wholeTurnCounter - 1]?.white?.fromResolved];
-    G.prevTo = idToIndex[pgnPlayer.pgn.moves[G.wholeTurnCounter - 1]?.white?.to];
-  }
-  L.G = G;
-  //console.log('reflectPgn:', G, fen)
-  reflect(L);
-  displayPgnMoveList(L, pgnPlayer.pgn, pgnPlayer.halfTurn, pgnPlayer.fullTurn);
-}
-
-/**
- * @param {LocalState} L
- * @param [steps=1] {number}
- */
-function deltaPgnPointer(L, steps) {
-  setPgnPointer(pgnPlayer.halfTurn + steps);
-}
-
-function setPgnPointer(halfTurns) {
-  //console.log('setPgnPointer:', halfTurns)
-  if (isNaN(halfTurns)) return;
-  pgnPlayer.halfTurn = Math.min(Math.max(0, halfTurns), pgnPlayer.pgn.fenCache.length - 1) || 0;
-  pgnPlayer.fullTurn = Math.ceil(pgnPlayer.halfTurn / 2);
+  reflectHistory(L);
 }

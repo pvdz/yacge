@@ -70,6 +70,8 @@ For the ultimate "why", the answer is much simpler: cause I wanted to :) It's fu
 - Add stockfish to it? Or some other established open source engine, to play moves and what not.
 - Show names when playing back PGN? Maybe more meta data.
 - Support and show certain markers like `?!` etc.
+- Mini mode, where board is not maximized and menu's are minimal such that we can more efficiently put multiple boards on the same page
+- Fast(er) mode, which disables certain controls (like FEN generation etc) to reduce overhead only used for the sake of interaction
 
 # TOFIX
 

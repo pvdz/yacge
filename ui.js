@@ -153,7 +153,7 @@ function realReflect(L) {
 
   L.html.enpassant.value = indexToId[G.enpassant] ?? 'no';
   L.html.turn50.value = G.fiftyTurnCounter;
-  L.html.turns.value = String(G.wholeTurnCounter).trim();
+  L.html.turns.value = String(G.wholeTurnCounter - (G.turnWhite ? 1 : 0)).trim();
 
   const material = getMatrial(G);
   const whiteMaterial = `${blackPawn.repeat(Math.max(0, 8 - material.black.pawns))} ${blackKnight.repeat(Math.max(0, 2 - material.black.knights))} ${blackBishop.repeat(Math.max(0, 2 - material.black.bishops))} ${blackRook.repeat(Math.max(0, 2 - material.black.rooks))} ${blackQueen.repeat(Math.max(0, 1 - material.black.queens))}`;

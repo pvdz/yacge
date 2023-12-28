@@ -66,8 +66,7 @@
  * @property {Element} three
  * @property {Element} spanWhite
  * @property {Element} spanBlack
- * @property {Element} movePlayer
- * @property {Element} moves
+ * @property {Element} history
  * @property {Element} pgnInput
  * @property {Element} fenInput
  * @property {Element} fenCurrent
@@ -77,11 +76,23 @@
  */
 
 /**
+ * @typedef History {Object}
+ * @property {'1-0' | '0-1' | '1/2-1/2' | '*'} end
+ * @property {number} index
+ * @property {turn: number, fen: string, white: boolean, from: string, to: string, an: string}[]} moves The record of moves made (or imported pgn moves). Each step holds the G, its FEN, and meta data cache for visuals. Cleared when you load a FEN or PGN.
+ *
+ * TODO?:
+ *   - alt-lines?
+ *   - meta data
+ */
+
+/**
  * The state data for one board and everything around it.
  *
  * @typedef LocalState {Object}
  * @property {string} uid A unique string for this game. Used, at least, to namespace radio button names which are otherwise global.
  * @property {Game} G The implicit game state for this board
+ * @property {History} history
  * @property {Lhtml} html
  * @property {'' | 'none' | 'filled' | 'white' | 'black' | 'pawns' | 'kings' | 'queens' | 'knights' | 'bishops' | 'rooks' | 'can_move' | 'is_checked_white' | 'is_checked_black' } currentOverlay (Overrides the global value)
  * @property {Map<string, Element>} arrowMap
@@ -90,7 +101,7 @@
  * @property {BigInt} currentTarget_i Only for debugging. Will ignore any other cell when doing attack checks etc.
  * @property {'none' | 'strict'} validationMode
  * @property {number} reflectTimer
- * @property {boolean} flipped
+ * @property {number} autoPlayTimer
  */
 
 
@@ -127,19 +138,19 @@ const M = {
    */
   const L = createBoard('1');
   createMenu(L);
-  initPgn(L, L.html.pgnInput.value);
+  loadPgn(L, L.html.pgnInput.value);
   //reflect(L);
 }
-{
-  /**
-   * (This will later allow us to spawn multiple boards, but for now it's sort of global)
-   *
-   * @type {LocalState}
-   */
-  const L = createBoard('2');
-  createMenu(L);
-  L.G = parseFen('r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1');
-  // initPgn(L, L.html.pgnInput.value);
-  reflect(L);
-}
-
+// {
+//   /**
+//    * (This will later allow us to spawn multiple boards, but for now it's sort of global)
+//    *
+//    * @type {LocalState}
+//    */
+//   const L = createBoard('2');
+//   createMenu(L);
+//   L.G = parseFen('r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1');
+//   // initPgn(L, L.html.pgnInput.value);
+//   reflect(L);
+// }
+//
