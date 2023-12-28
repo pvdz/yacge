@@ -1,6 +1,6 @@
 # Yacge (Yet Another Chess Game Engine)
 
-This is a relatively full blown web interface for chess games.
+This is a relatively full blown web interface for chess games. [demo](https://pvdz.github.io/yacge/) (_spoiler: not a demo; it's the full game!_)
 
 It started out as a simple tool to validate my chess engine as I was writing the rules, but kind then feature creep made me add more features and all the things I'd probably want to see.
 
