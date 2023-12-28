@@ -29,7 +29,7 @@ It's not finished. It will probably never be finished. It's mostly here to serve
 
 # Installation
 
-Eh. None :)
+Eh. None :) In fact, [you can find it here on Pages](https://pvdz.github.io/yacge/) ! 
 
 What you see is what you get. No dependencies, no installation or anything. Just drag the `index.html` file into a browser tab and it should just work.
 
