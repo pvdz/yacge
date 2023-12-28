@@ -66,7 +66,7 @@ For the ultimate "why", the answer is much simpler: cause I wanted to :) It's fu
 - Evaluation (a tentative score based on a pseudo/legit moves heuristic)
   - I'd really love to create a graph based on this like you get from chess.com
 - Support alternate paths so you can jump back to a loaded pgn game while exploring alternative lines
-- Add stockfish to it? Or some other established open source engine, to play moves and what not.
+- Add [stockfish](https://github.com/nmrugg/stockfish.js) to [it](https://github.com/bjedrzejewski/stockfish-js)? Or some other established open source engine, to play moves and what not.
 - Show names when playing back PGN? Maybe more meta data.
 - Support and show certain markers like `?!` etc.
 - Mini mode, where board is not maximized and menu's are minimal such that we can more efficiently put multiple boards on the same page
