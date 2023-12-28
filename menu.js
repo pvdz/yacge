@@ -117,7 +117,8 @@ function menuTurn(L) {
   turn.style = 'float: left';
 
   const sml = document.createElement('small');
-  sml.innerHTML = '(flip board)';
+  sml.innerHTML = '( ↻ flip board ↻ )';
+  sml.className = 'flipper';
   sml.addEventListener('pointerup', () => {
     // Very rudimentary but... super effective :D
     for (let i = L.html.board.children.length - 1; i>=0; --i) {
