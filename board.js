@@ -208,7 +208,7 @@ function createBoard(uid) {
         const fromn = 1n << M.pointerDownCellI;
         const ton = 1n << pointerUpCellI;
         if (L.validationMode === 'none' || canMove(L.G, M.pointerDownCellI, pointerUpCellI, fromn, ton, false, L.currentTarget_i) === 'ok') {
-          makeCompleteMove(L.G, M.pointerDownCellI, pointerUpCellI, fromn, ton, true, L.G.promotionDefault);
+          makeCompleteMoveIncHistory(L, M.pointerDownCellI, pointerUpCellI, fromn, ton, L.G.promotionDefault);
           if (L.autoArrowClear === 'move' || S.autoArrowClear === 'move') clearArrows(L);
           L.currentCell_i = NO_CELL_I;
           L.currentCell_n = NO_CELL;

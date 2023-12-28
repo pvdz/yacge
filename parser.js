@@ -129,7 +129,7 @@ function parseFen(fen) {
     castleQueensideBlack: canCastleBlackQueenside,
     enpassant: enPassantAt,
     fiftyTurnCounter: turn50limit,
-    wholeTurnCounter: currentTurnCounter,
+    fullTurnCounter: currentTurnCounter,
     promotionDefault: 'queen',
     black,
     white,

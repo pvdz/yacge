@@ -6,9 +6,8 @@
  * @param toi {BigInt} The index (0..63)
  * @param fromn {BigInt} A single bit is set, representing the field to move from
  * @param ton {BigInt} A single bit is set, representing the field to move to
- * @param promotionDefault {'' | 'queen' | 'rook' | 'knight' | 'bishop'}
  */
-function makeMove(G, fromi, toi, fromn = 1n << fromi, ton = 1n << toi, promotionDefault = '') {
+function makeMove(G, fromi, toi, fromn = 1n << fromi, ton = 1n << toi) {
   // This function only actually moves a piece from one cell to another and updates state accordingly.
   // Note: the move may be an invalid chess move (!).
   // Note: result will not apply pawn promotion (see makeCompleteMove for that)
@@ -148,9 +147,12 @@ function makeMove(G, fromi, toi, fromn = 1n << fromi, ton = 1n << toi, promotion
  */
 function makeCompleteMove(G, fromi, toi, fromn = 1n << fromi, ton = 1n << toi, promotionDefault = '') {
   const isWhite = G.white & fromn;
+  const wasWhiteTurn = G.turnWhite;
   const isPawnMove = G.pawns & fromn;
 
-  makeMove(G, fromi, toi, fromn, ton, promotionDefault);
+  if (isWhite && !wasWhiteTurn) G.fullTurnCounter += 1; // Illegal but if mode is enabled, back to back same color moves should increment counter too
+
+  makeMove(G, fromi, toi, fromn, ton);
 
   // Track pawn promotion
   if (isPawnMove) {
@@ -175,13 +177,51 @@ function makeCompleteMove(G, fromi, toi, fromn = 1n << fromi, ton = 1n << toi, p
     }
   }
 
-  // A "whole" turn is both players. White always begin so the whole turn counter increases after black's move.
-  if (!isWhite) G.wholeTurnCounter += 1;
+  if (!isWhite) G.fullTurnCounter += 1; // A "whole" turn is both players. The full move counter flips after every move by black.
   recordBoardState(G);
   G.prevFrom = fromi;
   G.prevTo = toi;
 }
 
+/**
+ * @param L {LocalState}
+ * @param fromi {BigInt} The index (0..63)
+ * @param toi {BigInt} The index (0..63)
+ * @param fromn {BigInt} A single bit is set, representing the field to move from
+ * @param ton {BigInt} A single bit is set, representing the field to move to
+ * @param promotionDefault {'' | 'queen' | 'rook' | 'knight' | 'bishop'}
+ */
+function makeCompleteMoveIncHistory(L, fromi, toi, fromn = 1n << fromi, ton = 1n << toi, promotionDefault = '') {
+  // console.log('-->', L.history.index, L.history.moves[L.history.index + 1])
+  // const prev = L.history.moves[L.history.index + 1];
+
+  const next = L.history.moves[L.history.index + 1];
+  if (next?.from === indexToId[fromi] && next?.to === indexToId[toi]) {
+    // Same move as next in the move list; just move the pointer...
+    console.log('Only moving history');
+    reflectHistory(L, 1);
+  } else {
+    L.history.moves.length = L.history.index + 1;
+    const fromWhiteCell = (L.G.white & fromn) > 0n;
+    makeCompleteMove(L.G, fromi, toi, fromn, ton, promotionDefault);
+    // Note: the full turn is flaky when moving the same color twice (in particular for white). Black always flips after the move so we subtract one.
+    const move = {turn: L.G.fullTurnCounter - (fromWhiteCell ? 0 : 1), fen: getFenString(L.G), white: fromWhiteCell, from: indexToId[fromi], to: indexToId[toi], piece: '?', an: '??'};
+    L.history.moves.push(move);
+    moveHistoryPointer(L, 1);
+    displayHistory(L);
+  }
+}
+
+/**
+ * @param {Game} G
+ * @param {boolean} forWhite
+ * @param {string} piece
+ * @param {string} tos
+ * @param {string} fromFile
+ * @param {string} fromRank
+ * @param {boolean} [debug]
+ * @returns {{i: BigInt, n: BigInt}}
+ */
 function findSourceCellFromPgnMove(G, forWhite, piece, tos, fromFile, fromRank, debug = false) {
   if (debug) console.log('findSourceCellFromPgnMove:', 'white:', forWhite, ', to:', tos, ', file hint:', fromFile, ', rank hint:', fromRank)
   // Given a game move relative to the current state of the game (PGN), resolve the source cell from which the move starts.

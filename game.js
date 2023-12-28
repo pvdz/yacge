@@ -10,7 +10,7 @@
  * @property {boolean} castleQueensideBlack
  * @property {BigInt} enpassant (The cell i containing a pawn that made a two cell advance in the previous turn, or NO_CELL_I. Shared by both sides since it's only relevant for the immediate next move of the opponent.)
  * @property {number} fiftyTurnCounter Half-turns (a full turn is a move by both players) since the last capture or pawn-move. At 50 the game ends in a draw. Offset 0. Increments after each player.
- * @property {number} wholeTurnCounter Full-turns (the current nth move for each player). Offset 1. Increments after each black move.
+ * @property {number} fullTurnCounter Full-turns (the current nth move for each player). Offset 1. Increments after each black move.
  * @property {'' | 'queen' | 'rook' | 'knight' | 'bishop'} promotionDefault
  * @property {BigInt} [prevFrom]
  * @property {BigInt} [prevTo]

@@ -146,7 +146,7 @@ function getFenString(G) {
   fenState += ' ' + (((G.castleKingsideWhite ? 'K' : '') + (G.castleQueensideWhite ? 'Q' : '') + (G.castleKingsideBlack ? 'k' : '') + (G.castleQueensideBlack ? 'q' : '')) || '-');
   fenState += ' ' + (G.enpassant === NO_CELL_I ? '-' : indexToId[G.enpassant]);
   fenState += ' ' + String(G.fiftyTurnCounter);
-  fenState += ' ' + String(G.wholeTurnCounter);
+  fenState += ' ' + String(G.fullTurnCounter);
 
   return fenState;
 }

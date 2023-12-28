@@ -65,8 +65,7 @@ For the ultimate "why", the answer is much simpler: cause I wanted to :) It's fu
 
 - Evaluation (a tentative score based on a pseudo/legit moves heuristic)
   - I'd really love to create a graph based on this like you get from chess.com
-- Properly record moves made into a move list, it's currently only built to support playback of PGN games, which feels kind of backwards now
-  - This includes the ability to create an alternative move while in the middle of some game and creating and recording an alternative line
+- Support alternate paths so you can jump back to a loaded pgn game while exploring alternative lines
 - Add stockfish to it? Or some other established open source engine, to play moves and what not.
 - Show names when playing back PGN? Maybe more meta data.
 - Support and show certain markers like `?!` etc.

@@ -221,7 +221,7 @@ function menuFullTurn(L) {
   L.html.turns = input;
 
   input.addEventListener('change', e => {
-    L.G.wholeTurnCounter = parseInt(e.target.value, 10) || 0;
+    L.G.fullTurnCounter = parseInt(e.target.value, 10) || 0;
   });
 
   return label;
@@ -631,7 +631,7 @@ function menuPly(L) {
   wet.addEventListener('pointerup', e => {
     const ply = parsePgnPly(e.target.parentNode.querySelector('input').value, L.G.turnWhite);
     const source = findSourceCellFromPgnMove(L.G, true, ply.piece, ply.to, ply.fromFile, ply.fromRank);
-    makeCompleteMove(L.G, source.i, idToIndex[ply.to], source.n);
+    makeCompleteMoveIncHistory(L, source.i, idToIndex[ply.to], source.n);
     if (S.autoArrowClear === 'move' || S.autoArrowClear === 'move') clearArrows(L);
     reflect(L);
   });
