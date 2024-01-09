@@ -1421,3 +1421,7 @@ function getMaterialPoints(material) {
     (1 - Math.max(0, Math.min(1, material.queens))) * 8
   );
 }
+
+if (typeof module !== 'undefined' && module?.exports !== undefined) {
+  module.exports.makeCompleteMove = makeCompleteMove;
+}

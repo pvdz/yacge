@@ -64,20 +64,7 @@ function createBoard(uid) {
     currentCell_i: NO_CELL_I,
     currentCell_n: NO_CELL,
     currentTarget_i: NO_CELL_I,
-    history: {
-      end: '*',
-      index: 0,
-      moves: [
-        {
-          fen: FEN_NEW_GAME,
-          white: false,
-          piece: '',
-          from: '',
-          to: '',
-          an: '',
-        },
-      ],
-    },
+    //history: undefined,
     historyIndex: 0,
     autoPlayTimer: 0,
   };

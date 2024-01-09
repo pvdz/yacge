@@ -1,5 +1,6 @@
 // This FEN represents the start of any game
 const FEN_NEW_GAME = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+const FEN_EMPTY_GAME = '8/8/8/8/8/8/8/8 w KQkq - 0 1';
 
 /**
  * @param fen {string}
@@ -141,4 +142,9 @@ function parseFen(fen) {
     pawns,
     threefold: new Map,
   };
+}
+
+if (typeof module !== 'undefined' && module?.exports !== undefined) {
+  module.exports.parseFen = parseFen;
+  module.exports.FEN_NEW_GAME = FEN_NEW_GAME;
 }

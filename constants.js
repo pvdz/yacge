@@ -25,7 +25,7 @@ const blackPawn = '♟'; //   - Unicode: \u265F or &#9823;
  * */
 
 /**
- * @type {Record<string, number>}
+ * @type {Record<string, BigInt>}
  */
 const idToIndex = {
   a8: 63n,

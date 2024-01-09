@@ -394,7 +394,7 @@ Rc2# 0-1
 
   const go = document.createElement('button');
   go.innerHTML = 'Load png';
-  go.addEventListener('pointerup', () => loadPgn(L, L.html.pgnInput.value));
+  go.addEventListener('pointerup', () => loadPgnAndReflect(L, L.html.pgnInput.value));
   png.appendChild(go);
 
   return png;

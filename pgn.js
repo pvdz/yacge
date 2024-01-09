@@ -5,15 +5,20 @@
  * @property {boolean} forWhite
  * @property {string} fromRank
  * @property {string} fromFile
- * @property {string} to
- * @property {string} piece
  * @property {'' | 'R' | 'N' | 'B' | 'Q' | 'K'} promote
+ * @property {'R' | 'N' | 'B' | 'Q' | 'K'} piece
  * @property {boolean} capture
  * @property {boolean} checked
  * @property {boolean} mated
  * @property {string} wtf
  * @property {string} raw The input for this ply
- * @property {string|undefined} [fromResolved] Once resolved, this should hold the "from" cell id (string) for this ply. It is a computed value.
+ * @property {BigInt} [fromi] Only after preComputeHistoryStep is called on it. The index (0..63) of the cell
+ * @property {BigInt} [fromn] Only after preComputeHistoryStep is called on it. Bigint with the bit set that represents the cell.
+ * @property {string} to The destination cell (string id) which is explicitly part of the ply
+ * @property {BigInt} [toi] Only after preComputeHistoryStep is called on it. The index (0..63) of the cell
+ * @property {BigInt} [ton] Only after preComputeHistoryStep is called on it. Bigint with the bit set that represents the cell.
+ * @property {string|undefined} [fromResolved] Only after preComputeHistoryStep, this should hold the "from" cell id (string) for this ply. It is a computed value.
+ * @property {Game} [beforeState] Only set after calling preloadPgn with the includeBeforeGameState option set. Represents the state of the game before making this move.
  */
 
 /**
@@ -27,9 +32,11 @@
 /**
  * @typedef PgnGame {Object}
  * @property {PgnMove[]} moves
- * @property {string[]} fenCache Maps the half-turn number (each move from each player counts as one half turn) to the FEN
- *    representing the board _after_ making this move. To get the "before" state you must load the previous move. Note: halfTurn offsets
- *    at 1 because 0 is the (constant) starting board state so the FEN of the board after white's first move will be in key 1.
+ * @property {string[]} [fenCache] Only available after loadPgn. Maps the half-turn number (each move from each player counts
+ *    as one half turn) to the FEN representing the board _after_ making this move. To get the "before" state you must load
+ *    the previous move. Note: halfTurn offsets at 1 because 0 is the (constant) starting board state so the FEN of the board
+ *    after white's first move will be in key 1.
+ * @property {Game} [preloadPgn] Only set after calling preloadPgn with the includeBeforeGameState option set. Represents the state of the game at the end of the game.
  */
 
 /**
@@ -37,6 +44,8 @@
  * @returns {PgnGame}
  **/
 function parsePgn(str) {
+  // Note: this returns a game where source cell for each ply, the AN (algebraic notation) move, has not yet been resolved
+
   /*
   Okay so, I think we can ignore every line that starts with a `[`, then trim each line
   and concat them, which should yield a series of moves. Those moves will have to be parsed.
@@ -166,14 +175,10 @@ function parsePgn(str) {
    */
   const moves = [];
   /**
-   * @type {string[]}
-   */
-  const fenCache = [FEN_NEW_GAME];
-  /**
    *
    * @type {PgnGame}
    */
-  const pgnGame = {moves, fenCache};
+  const pgnGame = {moves};
 
   movePlies.forEach(move => {
     const moveIndex = move.moven - 1;
@@ -314,39 +319,76 @@ function parsePgnPly(part, forWhite) {
 }
 
 /**
- * @param {LocalState} L
+ * Parses a PGN and pre-computes the game, resolving the source cell for every move.
+ *
  * @param {string} str
+ * @param {boolean} [includeBeforeGameState] Include a copy of the Game state _prior_ to making the move...
  * @param {boolean} [debug]
- * @returns {Element}
+ * @param {string} [offsetBoardFen]
+ * @returns {History}
  */
-function loadPgn(L, str, debug = false) {
+function preloadPgn(str, {includeBeforeGameState = false, debug = false, offsetBoardFen = FEN_NEW_GAME}) {
   const pgnGame = parsePgn(str);
+  pgnGame.fenCache = [offsetBoardFen];
 
   // Create fresh starting game.
-  const G = parseFen(FEN_NEW_GAME);
+  const G = parseFen(offsetBoardFen);
 
-  L.history.moves.length = 0;
-  L.history.moves.push({turn: 0, fen: FEN_NEW_GAME, white: false, from: '', to: '', an: ''});
-  L.history.end = '*'; // "unfinished" or "ending unknown"
-  L.history.index = 0;
+  /**
+   * @type {History}
+   */
+  const history = {
+    end: '*',
+    index: 0,
+    moves: [
+      {
+        turn: 0,
+        fen: offsetBoardFen,
+        white: false,
+        piece: '',
+        from: '',
+        to: '',
+        an: '',
+        ...(includeBeforeGameState ? {beforeState: {...G}}: {}),
+      },
+    ],
+  };
 
   // Replay the entire game, cache a FEN string after each step of the way.
   // This way we can revive a fresh board state based on these FENs.
   // This will also compute the "from" cell for every move, which we must be determined from the "current" game state...
   for (let i=0; i<pgnGame.moves.length; ++i) {
     const move = pgnGame.moves[i];
+    const before = includeBeforeGameState && {...G};
     if (move.white) {
       const step = preComputeHistoryStep(G, pgnGame, move.white, i * 2 + 1, i+1, debug);
-      L.history.moves.push(step);
+      if (before) step.beforeState = before;
+      history.moves.push(step);
     }
     if (move.black) {
       const step = preComputeHistoryStep(G, pgnGame, move.black, i * 2 + 2, i+1, debug);
-      L.history.moves.push(step);
+      if (before) step.beforeState = before;
+      history.moves.push(step);
     }
     if (move.end) {
-      L.history.end = move.end.value || '*';
+      history.end = move.end.value || '*';
+      if (includeBeforeGameState) L.history.finalState = before;
     }
   }
 
+  return history;
+}
+
+/**
+ * @param {LocalState} L
+ * @param {string} str
+ * @param {boolean} [debug]
+ */
+function loadPgnAndReflect(L, str, debug = false) {
+  L.history = preloadPgn(str, {debug});
   reflectHistory(L);
+}
+
+if (typeof module !== 'undefined' && module?.exports !== undefined) {
+  module.exports.preloadPgn = preloadPgn;
 }

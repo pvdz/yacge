@@ -192,7 +192,7 @@ function toggleHistoryAutoPlay(L, str) {
  * @param halfGameTurn {number} Offset 1, increments for each move each player makes
  * @param fullGameTurn {number} Offset 1, increments after each move the black player makes
  * @param [debug] {boolean}
- * @returns {{turn: number, fen: string, white: boolean, from: string, to: string, an: string}}
+ * @returns {HistoryMove}
  */
 function preComputeHistoryStep(G, pgnGame, ply, halfGameTurn, fullGameTurn, debug = false) {
   const forWhite = halfGameTurn % 2 === 1; // Offset at 1 because 0 is the starting board
@@ -201,8 +201,12 @@ function preComputeHistoryStep(G, pgnGame, ply, halfGameTurn, fullGameTurn, debu
   const ton = 1n << toi;
   if (debug) console.warn(`Attempting turn ${fullGameTurn}, moving a ${forWhite?'white':'black'} ${ply.piece}, from`, indexToId[fromi], 'to', indexToId[toi], ply);
   ply.fromResolved = indexToId[fromi];
+  ply.fromi = fromi;
+  ply.fromn = fromn;
+  ply.toi = fromi;
+  ply.ton = fromn;
   makeCompleteMove(G, fromi, toi, fromn, ton, {B:'bishop', N: 'knight', R: 'rook', Q: 'queen'}[ply.promote] ?? 'queen');
   pgnGame.fenCache[halfGameTurn] = getFenString(G);
 
-  return {turn: fullGameTurn, fen: getFenString(G), white: forWhite, from: indexToId[fromi], to: indexToId[toi], piece: ply.piece, an: ply.raw};
+  return {turn: fullGameTurn, fen: getFenString(G), white: forWhite, from: indexToId[fromi], fromi, fromn, to: indexToId[toi], toi, ton, piece: ply.piece, an: ply.raw};
 }

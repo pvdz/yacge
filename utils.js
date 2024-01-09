@@ -23,3 +23,19 @@ function $$(bitboard) {
 function assert(a, b, desc) {
   if (a !== b) throw new Error(desc);
 }
+
+/**
+ * @param {BigInt} bitboard
+ * @returns {(0 | 1)[]}
+ */
+function toBits(bitboard) {
+  const arr = [];
+  for (let i=0n; i<64n; ++i) {
+    arr.push(bitboard & (1n << i) ? 1 : 0);
+  }
+  return arr;
+}
+
+if (typeof module !== 'undefined' && module?.exports !== undefined) {
+  module.exports.toBits = toBits;
+}

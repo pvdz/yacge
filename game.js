@@ -76,10 +76,26 @@
  */
 
 /**
+ * @typedef HistoryMove {Object}
+ * @property {number} turn
+ * @property {string} fen
+ * @property {boolean} white
+ * @property {'' | 'R' | 'N' | 'B' | 'Q' | 'K'} piece
+ * @property {string} from
+ * @property {BigInt} fromi
+ * @property {BigInt} fromn
+ * @property {string} to
+ * @property {BigInt} toi
+ * @property {BigInt} ton
+ * @property {string} an
+ * @property {Game} [beforeState]
+ */
+
+/**
  * @typedef History {Object}
  * @property {'1-0' | '0-1' | '1/2-1/2' | '*'} end
  * @property {number} index
- * @property {turn: number, fen: string, white: boolean, from: string, to: string, an: string}[]} moves The record of moves made (or imported pgn moves). Each step holds the G, its FEN, and meta data cache for visuals. Cleared when you load a FEN or PGN.
+ * @property {HistoryMove[]} moves The record of moves made (or imported pgn moves). Each step holds the G, its FEN, and meta data cache for visuals. Cleared when you load a FEN or PGN.
  *
  * TODO?:
  *   - alt-lines?
@@ -92,7 +108,7 @@
  * @typedef LocalState {Object}
  * @property {string} uid A unique string for this game. Used, at least, to namespace radio button names which are otherwise global.
  * @property {Game} G The implicit game state for this board
- * @property {History} history
+ * @property {History} [history] Only available
  * @property {Lhtml} html
  * @property {'' | 'none' | 'filled' | 'white' | 'black' | 'pawns' | 'kings' | 'queens' | 'knights' | 'bishops' | 'rooks' | 'can_move' | 'is_checked_white' | 'is_checked_black' } currentOverlay (Overrides the global value)
  * @property {Map<string, Element>} arrowMap
@@ -138,7 +154,7 @@ const M = {
    */
   const L = createBoard('1');
   createMenu(L);
-  loadPgn(L, L.html.pgnInput.value);
+  loadPgnAndReflect(L, L.html.pgnInput.value);
   //reflect(L);
 }
 // {
