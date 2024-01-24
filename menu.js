@@ -1,10 +1,10 @@
-import {idToIndex, indexToId, NO_CELL_I} from './constants';
-import {reflectHistory, toggleHistoryAutoPlay} from './history';
-import {loadPgnAndReflect, parsePgnPly} from './pgn';
-import {parseFen} from './parser';
-import {S} from './game';
-import {findSourceCellFromPgnMove, makeCompleteMoveIncHistory} from './chess';
-import {clearArrows, reflect} from './ui';
+import {idToIndex, indexToId, NO_CELL_I} from './constants.js';
+import {reflectHistory, toggleHistoryAutoPlay} from './history.js';
+import {loadPgnAndReflect, parsePgnPly} from './pgn.js';
+import {parseFen} from './parser.js';
+import {S} from './game.js';
+import {findSourceCellFromPgnMove, makeCompleteMoveIncHistory} from './chess.js';
+import {clearArrows, reflect} from './ui.js';
 
 /**
  * @param {string} [cls]

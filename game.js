@@ -1,7 +1,7 @@
 import {loadPgnAndReflect} from './pgn.js';
 import {NO_CELL_I} from './constants.js';
-import {createBoard} from './board';
-import {createMenu} from './menu';
+import {createBoard} from './board.js';
+import {createMenu} from './menu.js';
 
 /**
  * Keep object flat (!)

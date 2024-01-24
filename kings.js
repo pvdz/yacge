@@ -1,5 +1,3 @@
-import {$$} from "./utils.js"
-
 /**
  * For each cell of a chess board, represent all the valid move targets for a king on that cell.
  * The K represents the position of the king for visual QoL only. It'll end up as a zero in the bitboard.

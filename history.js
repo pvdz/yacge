@@ -2,6 +2,7 @@ import {findSourceCellFromPgnMove, makeCompleteMove} from './chess.js';
 import {idToIndex, indexToId} from './constants.js';
 import {getFenString} from './serialize.js';
 import {parseFen} from './parser.js';
+import {reflect} from './ui.js';
 
 /**
  * @param {LocalState} L

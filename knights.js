@@ -1,5 +1,3 @@
-import {$$} from "./utils.js"
-
 /**
  * For each cell of a chess board, represent all the valid move targets for a knight on that cell.
  * The reverse also applies; for each cell it gives you all cells from which a knight may reach that cell.

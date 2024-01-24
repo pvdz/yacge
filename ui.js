@@ -3,16 +3,16 @@ import {
   blackKing,
   blackKnight, blackPawn,
   blackQueen,
-  blackRook, indexToId, NO_CELL, NO_CELL_I,
+  blackRook, idToIndex, indexToId, NO_CELL, NO_CELL_I,
   whiteBishop,
   whiteKing,
   whiteKnight, whitePawn,
   whiteQueen,
   whiteRook
-} from './constants';
-import {S} from './game';
-import {canMove, getMaterial, isCheck, points} from './chess';
-import {blackPawnsThatCanCaptureOn, whitePawnsThatCanCaptureOn} from './pawns';
+} from './constants.js';
+import {S} from './game.js';
+import {canMove, getMaterial, isCheck, points} from './chess.js';
+import {blackPawnsThatCanCaptureOn, whitePawnsThatCanCaptureOn} from './pawns.js';
 import {getFenishString} from "./serialize.js"
 
 /**
@@ -190,7 +190,7 @@ function realReflect(L) {
  * @param L {LocalState}
  * @param cell {string}
  */
-function setCurrent(L, cell) {
+export function setCurrent(L, cell) {
   if (S.autoArrowClear === 'move') clearArrows(L);
   const i = cell === '' ? NO_CELL_I : (idToIndex[cell] ?? NO_CELL_I);
   L.currentCell_i = i;

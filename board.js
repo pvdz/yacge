@@ -3,6 +3,7 @@ import {FEN_NEW_GAME, parseFen} from './parser.js';
 import {M, S} from './game.js';
 import {getPieceIconAt} from './serialize.js';
 import {canMove, makeCompleteMoveIncHistory} from './chess.js';
+import {clearArrows, setCurrent, reflect} from './ui.js';
 
 function div(cls = '', parent) {
   const div = document.createElement('div');
