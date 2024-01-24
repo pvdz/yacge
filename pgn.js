@@ -1,3 +1,6 @@
+import {FEN_NEW_GAME, parseFen} from './parser.js';
+import {preComputeHistoryStep, reflectHistory} from './history.js';
+
 /**
  * @typedef {Object} Ply
  * @property {'ply'} type
@@ -130,7 +133,7 @@ function parsePgn(str) {
     .replace(/ +/g, ' ')
     // Normalize move dots to be followed by a space
     .replace(/(\d+)\. */g, '$1. ')
-  console.log(movestr);
+  //console.log(movestr);
 
   // Break the move list into individual turns. Note that a move in PGN may have more parts than just a ply for each, like a NAG
   const moveStrings = movestr.match(/\d+\.+.+?(?=\d+\.+)|\d+\.+.+/g);
@@ -205,7 +208,7 @@ function parsePgn(str) {
     }
   });
 
-  console.log('pgnGame:', pgnGame)
+  //console.log('pgnGame:', pgnGame)
   return pgnGame;
 }
 
@@ -214,7 +217,7 @@ function parsePgn(str) {
  * @param forWhite {boolean}
  * @returns {{type: 'invalid', value: string} | {type: 'comment', value: string} | {type: 'end', value: string} | Ply}
  */
-function parsePgnPly(part, forWhite) {
+export function parsePgnPly(part, forWhite) {
   // Anatomy of a move: <piece> [source file][source rank] [x] <dest cell> [=rnbqRNBQ] [+#]
 
   if (!part) {
@@ -327,7 +330,7 @@ function parsePgnPly(part, forWhite) {
  * @param {string} [offsetBoardFen]
  * @returns {History}
  */
-function preloadPgn(str, {includeBeforeGameState = false, debug = false, offsetBoardFen = FEN_NEW_GAME}) {
+export function preloadPgn(str, {includeBeforeGameState = false, debug = false, offsetBoardFen = FEN_NEW_GAME}) {
   const pgnGame = parsePgn(str);
   pgnGame.fenCache = [offsetBoardFen];
 
@@ -372,7 +375,7 @@ function preloadPgn(str, {includeBeforeGameState = false, debug = false, offsetB
     }
     if (move.end) {
       history.end = move.end.value || '*';
-      if (includeBeforeGameState) L.history.finalState = before;
+      if (before) history.finalState = before;
     }
   }
 
@@ -384,11 +387,7 @@ function preloadPgn(str, {includeBeforeGameState = false, debug = false, offsetB
  * @param {string} str
  * @param {boolean} [debug]
  */
-function loadPgnAndReflect(L, str, debug = false) {
+export function loadPgnAndReflect(L, str, debug = false) {
   L.history = preloadPgn(str, {debug});
   reflectHistory(L);
-}
-
-if (typeof module !== 'undefined' && module?.exports !== undefined) {
-  module.exports.preloadPgn = preloadPgn;
 }

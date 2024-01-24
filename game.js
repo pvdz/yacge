@@ -1,3 +1,7 @@
+import {loadPgnAndReflect} from './pgn.js';
+import {NO_CELL_I} from './constants.js';
+import {createBoard} from './board';
+import {createMenu} from './menu';
 
 /**
  * Keep object flat (!)
@@ -70,6 +74,7 @@
  * @property {Element} pgnInput
  * @property {Element} fenInput
  * @property {Element} fenCurrent
+ * @property {Element} showAll
  * @property {Element} turnWhite
  * @property {Element} turnBlack
  * @property {Element} thresh
@@ -96,6 +101,7 @@
  * @property {'1-0' | '0-1' | '1/2-1/2' | '*'} end
  * @property {number} index
  * @property {HistoryMove[]} moves The record of moves made (or imported pgn moves). Each step holds the G, its FEN, and meta data cache for visuals. Cleared when you load a FEN or PGN.
+ * @property {Game} [finalState] Only after calling preloadPgn with the includeBeforeGameState option
  *
  * TODO?:
  *   - alt-lines?
@@ -124,7 +130,7 @@
 /**
  * @type {GlobalState}
  */
-const S = {
+export const S = {
   currentOverlay: 'can_move',
   autoArrowClear: 'select',
 };
@@ -133,7 +139,7 @@ const S = {
  * (Global)
  * @type {MouseState}
  */
-const M = {
+export const M = {
   pointerDownStatus: false,
   pointerDownX: 0,
   pointerDownY: 0,
@@ -147,22 +153,14 @@ const M = {
 };
 
 {
-  /**
-   * (This will later allow us to spawn multiple boards, but for now it's sort of global)
-   *
-   * @type {LocalState}
-   */
+  // (This will later allow us to spawn multiple boards, but for now it's sort of global)
   const L = createBoard('1');
   createMenu(L);
   loadPgnAndReflect(L, L.html.pgnInput.value);
-  //reflect(L);
 }
 // {
 //   /**
-//    * (This will later allow us to spawn multiple boards, but for now it's sort of global)
-//    *
-//    * @type {LocalState}
-//    */
+//   // (This will later allow us to spawn multiple boards, but for now it's sort of global)
 //   const L = createBoard('2');
 //   createMenu(L);
 //   L.G = parseFen('r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1');

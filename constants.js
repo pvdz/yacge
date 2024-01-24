@@ -1,15 +1,15 @@
-const whiteKing = '♔'; //  - Unicode: \u2654 or &#9812;
-const whiteQueen = '♕'; // - Unicode: \u2655 or &#9813;
-const whiteRook = '♖'; //  - Unicode: \u2656 or &#9814;
-const whiteBishop = '♗'; // - Unicode: \u2657 or &#9815;
-const whiteKnight = '♘'; // - Unicode: \u2658 or &#9816;
-const whitePawn = '♙'; //   - Unicode: \u2659 or &#9817;
-const blackKing = '♚'; //  - Unicode: \u265A or &#9818;
-const blackQueen = '♛'; // - Unicode: \u265B or &#9819;
-const blackRook = '♜'; //  - Unicode: \u265C or &#9820;
-const blackBishop = '♝'; // - Unicode: \u265D or &#9821;
-const blackKnight = '♞'; // - Unicode: \u265E or &#9822;
-const blackPawn = '♟'; //   - Unicode: \u265F or &#9823;
+export const whiteKing = '♔'; //  - Unicode: \u2654 or &#9812;
+export const whiteQueen = '♕'; // - Unicode: \u2655 or &#9813;
+export const whiteRook = '♖'; //  - Unicode: \u2656 or &#9814;
+export const whiteBishop = '♗'; // - Unicode: \u2657 or &#9815;
+export const whiteKnight = '♘'; // - Unicode: \u2658 or &#9816;
+export const whitePawn = '♙'; //   - Unicode: \u2659 or &#9817;
+export const blackKing = '♚'; //  - Unicode: \u265A or &#9818;
+export const blackQueen = '♛'; // - Unicode: \u265B or &#9819;
+export const blackRook = '♜'; //  - Unicode: \u265C or &#9820;
+export const blackBishop = '♝'; // - Unicode: \u265D or &#9821;
+export const blackKnight = '♞'; // - Unicode: \u265E or &#9822;
+export const blackPawn = '♟'; //   - Unicode: \u265F or &#9823;
 
 /**
  * Bit field represented like this
@@ -27,7 +27,7 @@ const blackPawn = '♟'; //   - Unicode: \u265F or &#9823;
 /**
  * @type {Record<string, BigInt>}
  */
-const idToIndex = {
+export const idToIndex = {
   a8: 63n,
   b8: 62n,
   c8: 61n,
@@ -96,7 +96,7 @@ const idToIndex = {
 /**
  * @type {Record<number, string>}
  */
-const indexToId = {
+export const indexToId = {
   63n: 'a8',
   62n: 'b8',
   61n: 'c8',
@@ -164,38 +164,38 @@ const indexToId = {
 };
 
 // Used by castling logic
-const CELL_I_A1 = idToIndex['a1']
-const CELL_I_C1 = idToIndex['c1']
-const CELL_I_D1 = idToIndex['d1']
-const CELL_I_E1 = idToIndex['e1'];
-const CELL_I_F1 = idToIndex['f1'];
-const CELL_I_G1 = idToIndex['g1'];
-const CELL_I_H1 = idToIndex['h1'];
-const CELL_I_C8 = idToIndex['c8']
-const CELL_I_A8 = idToIndex['a8']
-const CELL_I_D8 = idToIndex['d8']
-const CELL_I_E8 = idToIndex['e8'];
-const CELL_I_F8 = idToIndex['f8'];
-const CELL_I_G8 = idToIndex['g8'];
-const CELL_I_H8 = idToIndex['h8'];
+export const CELL_I_A1 = idToIndex['a1']
+export const CELL_I_C1 = idToIndex['c1']
+export const CELL_I_D1 = idToIndex['d1']
+export const CELL_I_E1 = idToIndex['e1'];
+export const CELL_I_F1 = idToIndex['f1'];
+export const CELL_I_G1 = idToIndex['g1'];
+export const CELL_I_H1 = idToIndex['h1'];
+export const CELL_I_C8 = idToIndex['c8']
+export const CELL_I_A8 = idToIndex['a8']
+export const CELL_I_D8 = idToIndex['d8']
+export const CELL_I_E8 = idToIndex['e8'];
+export const CELL_I_F8 = idToIndex['f8'];
+export const CELL_I_G8 = idToIndex['g8'];
+export const CELL_I_H8 = idToIndex['h8'];
 
-const CELL_N_A1 = 1n << CELL_I_A1;
-const CELL_N_D1 = 1n << CELL_I_D1;
-const CELL_N_F1 = 1n << CELL_I_F1;
-const CELL_N_H1 = 1n << CELL_I_H1;
-const CELL_N_A8 = 1n << CELL_I_A8;
-const CELL_N_D8 = 1n << CELL_I_D8;
-const CELL_N_F8 = 1n << CELL_I_F8;
-const CELL_N_H8 = 1n << CELL_I_H8;
+export const CELL_N_A1 = 1n << CELL_I_A1;
+export const CELL_N_D1 = 1n << CELL_I_D1;
+export const CELL_N_F1 = 1n << CELL_I_F1;
+export const CELL_N_H1 = 1n << CELL_I_H1;
+export const CELL_N_A8 = 1n << CELL_I_A8;
+export const CELL_N_D8 = 1n << CELL_I_D8;
+export const CELL_N_F8 = 1n << CELL_I_F8;
+export const CELL_N_H8 = 1n << CELL_I_H8;
 
-const NO_CELL = 1n << 64n;
-const NO_CELL_I = 64n;
+export const NO_CELL = 1n << 64n;
+export const NO_CELL_I = 64n;
 
-function convertStringToBitboard(s) {
+export function convertStringToBitboard(s) {
   return BigInt(`0b${s.replace('x', '0').replace(/\s/g, '')}`);
 }
 
-const FILE_A = convertStringToBitboard(`
+export const FILE_A = convertStringToBitboard(`
   10000000
   10000000
   10000000
@@ -205,7 +205,7 @@ const FILE_A = convertStringToBitboard(`
   10000000
   10000000
 `);
-const FILE_B = convertStringToBitboard(`
+export const FILE_B = convertStringToBitboard(`
   01000000
   01000000
   01000000
@@ -215,7 +215,7 @@ const FILE_B = convertStringToBitboard(`
   01000000
   01000000
 `);
-const FILE_C = convertStringToBitboard(`
+export const FILE_C = convertStringToBitboard(`
   00100000
   00100000
   00100000
@@ -225,7 +225,7 @@ const FILE_C = convertStringToBitboard(`
   00100000
   00100000
 `);
-const FILE_D = convertStringToBitboard(`
+export const FILE_D = convertStringToBitboard(`
   00010000
   00010000
   00010000
@@ -235,7 +235,7 @@ const FILE_D = convertStringToBitboard(`
   00010000
   00010000
 `);
-const FILE_E = convertStringToBitboard(`
+export const FILE_E = convertStringToBitboard(`
   00001000
   00001000
   00001000
@@ -245,7 +245,7 @@ const FILE_E = convertStringToBitboard(`
   00001000
   00001000
 `);
-const FILE_F = convertStringToBitboard(`
+export const FILE_F = convertStringToBitboard(`
   00000100
   00000100
   00000100
@@ -255,7 +255,7 @@ const FILE_F = convertStringToBitboard(`
   00000100
   00000100
 `);
-const FILE_G = convertStringToBitboard(`
+export const FILE_G = convertStringToBitboard(`
   00000010
   00000010
   00000010
@@ -265,7 +265,7 @@ const FILE_G = convertStringToBitboard(`
   00000010
   00000010
 `);
-const FILE_H = convertStringToBitboard(`
+export const FILE_H = convertStringToBitboard(`
   00000001
   00000001
   00000001
@@ -275,8 +275,8 @@ const FILE_H = convertStringToBitboard(`
   00000001
   00000001
 `);
-const FILE_MASKS = {a: FILE_A, b: FILE_B, c: FILE_C, d: FILE_D, e: FILE_E, f: FILE_F, g: FILE_G, h: FILE_H};
-const RANK_1 = convertStringToBitboard(`
+export const FILE_MASKS = {a: FILE_A, b: FILE_B, c: FILE_C, d: FILE_D, e: FILE_E, f: FILE_F, g: FILE_G, h: FILE_H};
+export const RANK_1 = convertStringToBitboard(`
   00000000
   00000000
   00000000
@@ -286,7 +286,7 @@ const RANK_1 = convertStringToBitboard(`
   00000000
   11111111
 `);
-const RANK_2 = convertStringToBitboard(`
+export const RANK_2 = convertStringToBitboard(`
   00000000
   00000000
   00000000
@@ -296,7 +296,7 @@ const RANK_2 = convertStringToBitboard(`
   11111111
   00000000
 `);
-const RANK_3 = convertStringToBitboard(`
+export const RANK_3 = convertStringToBitboard(`
   00000000
   00000000
   00000000
@@ -306,7 +306,7 @@ const RANK_3 = convertStringToBitboard(`
   00000000
   00000000
 `);
-const RANK_4 = convertStringToBitboard(`
+export const RANK_4 = convertStringToBitboard(`
   00000000
   00000000
   00000000
@@ -316,7 +316,7 @@ const RANK_4 = convertStringToBitboard(`
   00000000
   00000000
 `);
-const RANK_5 = convertStringToBitboard(`
+export const RANK_5 = convertStringToBitboard(`
   00000000
   00000000
   00000000
@@ -326,7 +326,7 @@ const RANK_5 = convertStringToBitboard(`
   00000000
   00000000
 `);
-const RANK_6 = convertStringToBitboard(`
+export const RANK_6 = convertStringToBitboard(`
   00000000
   00000000
   11111111
@@ -336,7 +336,7 @@ const RANK_6 = convertStringToBitboard(`
   00000000
   00000000
 `);
-const RANK_7 = convertStringToBitboard(`
+export const RANK_7 = convertStringToBitboard(`
   00000000
   11111111
   00000000
@@ -346,7 +346,7 @@ const RANK_7 = convertStringToBitboard(`
   00000000
   00000000
 `);
-const RANK_8 = convertStringToBitboard(`
+export const RANK_8 = convertStringToBitboard(`
   11111111
   00000000
   00000000
@@ -357,12 +357,11 @@ const RANK_8 = convertStringToBitboard(`
   00000000
 `);
 // Offset 1 because that makes more sense.
-const RANK_MASKS = [undefined, RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8];
+export const RANK_MASKS = [undefined, RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8];
 
+export const FILE_HEADERS = ['', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', ''];
 
-const FILE_HEADERS = ['', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', ''];
-
-const CELL_DATA = [
+export const CELL_DATA = [
   [['a8', '63'], ['b8', '62'], ['c8', '61'], ['d8', '60'], ['e8', '59'], ['f8', '58'], ['g8', '57'], ['h8', '56']],
   [['a7', '55'], ['b7', '54'], ['c7', '53'], ['d7', '52'], ['e7', '54'], ['f7', '50'], ['g7', '49'], ['h7', '48']],
   [['a6', '47'], ['b6', '46'], ['c6', '45'], ['d6', '44'], ['e6', '45'], ['f6', '42'], ['g6', '41'], ['h6', '40']],

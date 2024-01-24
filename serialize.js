@@ -1,24 +1,56 @@
+import {
+  NO_CELL_I,
+  indexToId,
+  whiteKing,
+  whiteRook,
+  blackRook,
+  blackQueen,
+  whiteKnight,
+  whiteQueen,
+  blackKing,
+  blackKnight, whiteBishop, blackBishop, whitePawn, blackPawn
+} from './constants.js';
 
 /**
  * @param G {Game}
- * @param bitboardCell {BigInt}
+ * @param {BigInt} bitboardCellN
  * @returns {{color: 'black'|'white', icon: string}}
  */
-function getPieceIconAt(G, bitboardCell) {
-  if (G.kings & bitboardCell) return (G.white & bitboardCell) ? {color: 'white', icon: whiteKing} : {color: 'black', icon: blackKing};
-  if (G.queens & bitboardCell) return (G.white & bitboardCell) ? {color: 'white', icon: whiteQueen} : {color: 'black', icon: blackQueen};
-  if (G.rooks & bitboardCell) return (G.white & bitboardCell) ? {color: 'white', icon: whiteRook} : {color: 'black', icon: blackRook};
-  if (G.knights & bitboardCell) return (G.white & bitboardCell) ? {color: 'white', icon: whiteKnight} : {color: 'black', icon: blackKnight};
-  if (G.bishops & bitboardCell) return (G.white & bitboardCell) ? {color: 'white', icon: whiteBishop} : {color: 'black', icon: blackBishop};
-  if (G.pawns & bitboardCell) return (G.white & bitboardCell) ? {color: 'white', icon: whitePawn} : {color: 'black', icon: blackPawn};
+export function getPieceIconAt(G, bitboardCellN) {
+  if (G.kings & bitboardCellN) return (G.white & bitboardCellN) ? {color: 'white', icon: whiteKing} : {color: 'black', icon: blackKing};
+  if (G.queens & bitboardCellN) return (G.white & bitboardCellN) ? {color: 'white', icon: whiteQueen} : {color: 'black', icon: blackQueen};
+  if (G.rooks & bitboardCellN) return (G.white & bitboardCellN) ? {color: 'white', icon: whiteRook} : {color: 'black', icon: blackRook};
+  if (G.knights & bitboardCellN) return (G.white & bitboardCellN) ? {color: 'white', icon: whiteKnight} : {color: 'black', icon: blackKnight};
+  if (G.bishops & bitboardCellN) return (G.white & bitboardCellN) ? {color: 'white', icon: whiteBishop} : {color: 'black', icon: blackBishop};
+  if (G.pawns & bitboardCellN) return (G.white & bitboardCellN) ? {color: 'white', icon: whitePawn} : {color: 'black', icon: blackPawn};
   return {color: 'white', icon: ''};
 }
 
+/**
+ * @param G {Game}
+ * @param {BigInt} bitboardCellN
+ * @param {boolean} [p] Return P for pawns or empty string?
+ * @returns {'P' | 'R' | 'N' | 'B' | 'Q' | 'K' | ''}
+ */
+export function getPieceCodeAt(G, bitboardCellN, p = true) {
+  if (G.kings & bitboardCellN) return 'K';
+  if (G.queens & bitboardCellN) return 'Q';
+  if (G.rooks & bitboardCellN) return 'R';
+  if (G.knights & bitboardCellN) return 'N';
+  if (G.bishops & bitboardCellN) return 'B';
+  if (G.pawns & bitboardCellN) return p ? 'P' : '';
+  return '';
+}
+
+/**
+ * @param {Game} G
+ * @returns {{str: string, alnum: string, num: BigInt, hex: string, ascii: string, fenish: string}}
+ */
 function getBoardHash(G) {
   /**
    * @type {BigInt}
    */
-  const num = (
+  const num =
     (G.black << (7n * 64n)) |
     (G.white << (6n * 64n)) |
     (G.rooks << (5n * 64n)) |
@@ -27,7 +59,7 @@ function getBoardHash(G) {
     (G.queens << (2n * 64n)) |
     (G.kings << (1n * 64n)) |
     (G.pawns << (0n * 64n))
-  );
+  ;
 
   let alnum = '';
   let n = num;
@@ -58,12 +90,11 @@ function getBoardHash(G) {
   };
 }
 
-
 /**
  * @param G {Game}
  * @returns {string}
  */
-function getFenishString(G) {
+export function getFenishString(G) {
   // See getFenString for a regular FEN string
 
   let str = '';
@@ -114,7 +145,7 @@ function getFenishString(G) {
  * @param G {Game}
  * @returns {string}
  */
-function getFenString(G) {
+export function getFenString(G) {
   let fenState = '';
   let fenRank = '';
   for (let i=0n; i<64n; ++i) {

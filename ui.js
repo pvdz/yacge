@@ -1,7 +1,24 @@
+import {
+  blackBishop,
+  blackKing,
+  blackKnight, blackPawn,
+  blackQueen,
+  blackRook, indexToId, NO_CELL, NO_CELL_I,
+  whiteBishop,
+  whiteKing,
+  whiteKnight, whitePawn,
+  whiteQueen,
+  whiteRook
+} from './constants';
+import {S} from './game';
+import {canMove, getMaterial, isCheck, points} from './chess';
+import {blackPawnsThatCanCaptureOn, whitePawnsThatCanCaptureOn} from './pawns';
+import {getFenishString} from "./serialize.js"
+
 /**
  * @param L {LocalState}
  */
-function reflect(L) {
+export function reflect(L) {
   //console.trace('reflect attempt...', G);
   // Debounce visual representation but store the state to show
   if (L.reflectTimer) return;// console.log('debounced...');
@@ -97,20 +114,20 @@ function realReflect(L) {
             ? 'transparent'
             : L.currentCell_i === i
               ? 'red'
-              : {ok: 'green', bad: 'transparent', blocked: $show_pseudo_moves.checked ? 'orange' : 'transparent'}[canMove(G, L.currentCell_i, i, L.currentCell_n, n, L.validationMode === 'none', L.currentTarget_i)];
+              : {ok: 'green', bad: 'transparent', blocked: L.html.showAll.checked ? 'orange' : 'transparent'}[canMove(G, L.currentCell_i, i, L.currentCell_n, n, L.validationMode === 'none', L.currentTarget_i)];
         break;
       }
       case 'is_checked_white': {
         L.html.cells[i].style.borderColor =
           L.currentTarget_i === NO_CELL_I || L.currentTarget_i === i
-            ? {ok: 'green', checked: 'orange'}[isCheck(G, i, n, G.white, blackPawnsThatCanCaptureOn).state]
+            ? {ok: 'green', checked: 'orange'}[isCheck(G, i, n, true, blackPawnsThatCanCaptureOn).state]
             : 'transparent';
         break;
       }
       case 'is_checked_black': {
         L.html.cells[i].style.borderColor =
           L.currentTarget_i === NO_CELL_I || L.currentTarget_i === i
-            ? {ok: 'green', checked: 'orange'}[isCheck(G, i, n, G.black, whitePawnsThatCanCaptureOn).state]
+            ? {ok: 'green', checked: 'orange'}[isCheck(G, i, n, false, whitePawnsThatCanCaptureOn).state]
             : 'transparent';
         break;
       }
@@ -155,11 +172,11 @@ function realReflect(L) {
   L.html.turn50.value = G.fiftyTurnCounter;
   L.html.turns.value = String(G.fullTurnCounter - (G.turnWhite ? 1 : 0)).trim();
 
-  const material = getMatrial(G);
+  const material = getMaterial(G);
   const whiteMaterial = `${blackPawn.repeat(Math.max(0, 8 - material.black.pawns))} ${blackKnight.repeat(Math.max(0, 2 - material.black.knights))} ${blackBishop.repeat(Math.max(0, 2 - material.black.bishops))} ${blackRook.repeat(Math.max(0, 2 - material.black.rooks))} ${blackQueen.repeat(Math.max(0, 1 - material.black.queens))}`;
-  const whitePoints = getMaterialPoints(material.black);
+  const whitePoints = points(material.black);
   const blackMaterial = `${blackPawn.repeat(Math.max(0, 8 - material.white.pawns))} ${blackKnight.repeat(Math.max(0, 2 - material.white.knights))} ${blackBishop.repeat(Math.max(0, 2 - material.white.bishops))} ${blackRook.repeat(Math.max(0, 2 - material.white.rooks))} ${blackQueen.repeat(Math.max(0, 1 - material.white.queens))}`;
-  const blackPoints = getMaterialPoints(material.white);
+  const blackPoints = points(material.white);
   L.html.materialWhite.innerHTML = `<span class="pieces">${whiteMaterial}</span>${whitePoints > blackPoints ? ` (+${whitePoints - blackPoints})` : ''}`;
   L.html.materialBlack.innerHTML = `<span class="pieces">${blackMaterial}</span>${blackPoints > whitePoints ? ` (+${blackPoints - whitePoints})` : ''}`;
 
@@ -191,7 +208,7 @@ function setTarget(L, cell) {
 /**
  * @param {LocalState} L
  */
-function clearArrows(L) {
+export function clearArrows(L) {
   for (let i=0; i<64; ++i) L.html.cells[i].classList.remove('lit');
   L.arrowMap.forEach((div, key) => {
     L.html.root.removeChild(div);

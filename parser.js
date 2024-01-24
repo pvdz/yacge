@@ -1,12 +1,13 @@
+import {idToIndex, NO_CELL_I} from './constants.js';
+
 // This FEN represents the start of any game
-const FEN_NEW_GAME = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-const FEN_EMPTY_GAME = '8/8/8/8/8/8/8/8 w KQkq - 0 1';
+export const FEN_NEW_GAME = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
 /**
  * @param fen {string}
  * @returns {Game}
  */
-function parseFen(fen) {
+export function parseFen(fen) {
   // FEN
   // r4rk1/ppb2ppp/2p5/8/4B3/3QP3/PPP2PPq/R4RK1 w kQ e5 25 60
   //
@@ -142,9 +143,4 @@ function parseFen(fen) {
     pawns,
     threefold: new Map,
   };
-}
-
-if (typeof module !== 'undefined' && module?.exports !== undefined) {
-  module.exports.parseFen = parseFen;
-  module.exports.FEN_NEW_GAME = FEN_NEW_GAME;
 }

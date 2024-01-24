@@ -1,3 +1,37 @@
+import {
+  FILE_MASKS,
+  NO_CELL,
+  NO_CELL_I,
+  idToIndex,
+  CELL_I_E1,
+  CELL_I_C1,
+  CELL_I_G1,
+  CELL_I_E8,
+  CELL_N_A1,
+  CELL_N_D1,
+  CELL_N_H1,
+  CELL_N_F1,
+  CELL_I_C8,
+  CELL_N_A8,
+  CELL_N_D8,
+  CELL_I_G8,
+  CELL_N_H8,
+  CELL_N_F8,
+  RANK_3,
+  RANK_7,
+  RANK_MASKS,
+  indexToId,
+  CELL_I_F8,
+  CELL_I_F1, CELL_I_H1, CELL_I_A1, CELL_I_A8, CELL_I_H8, CELL_I_D1, CELL_I_D8
+} from './constants.js';
+import {whitePawnsThatCanCaptureOn, blackPawnsThatCanCaptureOn, whitePawnsThatCanMoveTo, blackPawnsThatCanMoveTo } from './pawns.js';
+import {singleBitToIndex} from './single-bit.js';
+import {getFenishString, getFenString} from './serialize.js';
+import {knightMoves} from './knights.js';
+import {kingMoves} from './kings.js';
+import {$$, $$$, assert} from './utils.js';
+import {displayHistory, moveHistoryPointer, reflectHistory} from './history.js';
+
 // Some inspiration: https://www.chessprogramming.org/Bitboards
 
 /**
@@ -7,7 +41,7 @@
  * @param fromn {BigInt} A single bit is set, representing the field to move from
  * @param ton {BigInt} A single bit is set, representing the field to move to
  */
-function makeMove(G, fromi, toi, fromn = 1n << fromi, ton = 1n << toi) {
+export function makeMove(G, fromi, toi, fromn = 1n << fromi, ton = 1n << toi) {
   // This function only actually moves a piece from one cell to another and updates state accordingly.
   // Note: the move may be an invalid chess move (!).
   // Note: result will not apply pawn promotion (see makeCompleteMove for that)
@@ -145,7 +179,7 @@ function makeMove(G, fromi, toi, fromn = 1n << fromi, ton = 1n << toi) {
  * @param ton {BigInt} A single bit is set, representing the field to move to
  * @param promotionDefault {'' | 'queen' | 'rook' | 'knight' | 'bishop'}
  */
-function makeCompleteMove(G, fromi, toi, fromn = 1n << fromi, ton = 1n << toi, promotionDefault = '') {
+export function makeCompleteMove(G, fromi, toi, fromn = 1n << fromi, ton = 1n << toi, promotionDefault = '', updateThreefold = true) {
   const isWhite = G.white & fromn;
   const wasWhiteTurn = G.turnWhite;
   const isPawnMove = G.pawns & fromn;
@@ -178,7 +212,7 @@ function makeCompleteMove(G, fromi, toi, fromn = 1n << fromi, ton = 1n << toi, p
   }
 
   if (!isWhite) G.fullTurnCounter += 1; // A "whole" turn is both players. The full move counter flips after every move by black.
-  recordBoardState(G);
+  if (updateThreefold) recordBoardState(G);
   G.prevFrom = fromi;
   G.prevTo = toi;
 }
@@ -191,7 +225,7 @@ function makeCompleteMove(G, fromi, toi, fromn = 1n << fromi, ton = 1n << toi, p
  * @param ton {BigInt} A single bit is set, representing the field to move to
  * @param promotionDefault {'' | 'queen' | 'rook' | 'knight' | 'bishop'}
  */
-function makeCompleteMoveIncHistory(L, fromi, toi, fromn = 1n << fromi, ton = 1n << toi, promotionDefault = '') {
+export function makeCompleteMoveIncHistory(L, fromi, toi, fromn = 1n << fromi, ton = 1n << toi, promotionDefault = '') {
   // console.log('-->', L.history.index, L.history.moves[L.history.index + 1])
   // const prev = L.history.moves[L.history.index + 1];
 
@@ -222,7 +256,7 @@ function makeCompleteMoveIncHistory(L, fromi, toi, fromn = 1n << fromi, ton = 1n
  * @param {boolean} [debug]
  * @returns {{i: BigInt, n: BigInt}}
  */
-function findSourceCellFromPgnMove(G, forWhite, piece, tos, fromFile, fromRank, debug = false) {
+export function findSourceCellFromPgnMove(G, forWhite, piece, tos, fromFile, fromRank, debug = false) {
   if (debug) console.log('findSourceCellFromPgnMove:', 'white:', forWhite, ', to:', tos, ', file hint:', fromFile, ', rank hint:', fromRank)
   // Given a game move relative to the current state of the game (PGN), resolve the source cell from which the move starts.
   // More complicated than it needs to be.
@@ -625,6 +659,22 @@ function recordBoardState(G) {
 }
 
 /**
+ * Returns true if this would trigger a threefold draw. In that case the register is not updated.
+ * Returns false if the register is updated and the state has not been seen three or more times.
+ *
+ * @param G {Game}
+ * @param [max=3] {number} In real chess the value is 3 but if you want you can change that
+ */
+export function updateThreefoldOrBail(G, max = 3) {
+  const hash = getFenishString(G);
+  const seen = G.threefold.get(hash) ?? 0;
+  //console.log('hash:', hash, seen);
+  if (seen >= max) return true;
+  G.threefold.set(hash, seen + 1);
+  return false;
+}
+
+/**
  * @param G {Game}
  * @param fromi {BigInt} The index (0..63)
  * @param toi {BigInt} The index (0..63)
@@ -634,13 +684,13 @@ function recordBoardState(G) {
  * @param [targetCellI] {BigInt}
  * @returns { 'ok' | 'bad' | 'blocked' }
  */
-function canMove(G, fromi, toi, fromn = 1n << fromi, ton = 1n << toi, ignoreTurn = false, targetCellI = NO_CELL_I) {
+export function canMove(G, fromi, toi, fromn = 1n << fromi, ton = 1n << toi, ignoreTurn = false, targetCellI = NO_CELL_I) {
   // Assumes the game state has one king. If there are multiple, the no-check rule is skipped.
 
   const filled = G.white | G.black;
   const forWhite = !!(G.white & fromn);
   if (fromn === ton) {
-    console.warn(fromi, toi, 'false: same cell')
+    //console.warn(fromi, toi, 'false: same cell')
     return 'bad';
   }
   if (!(filled & fromn)) {
@@ -679,7 +729,7 @@ function canMove(G, fromi, toi, fromn = 1n << fromi, ton = 1n << toi, ignoreTurn
  * @param toi {BigInt} The index (0..63)
  * @param fromn {BigInt} A single bit is set, representing the field to move from
  * @param ton {BigInt} A single bit is set, representing the field to move to
- * @returns {{state: 'ok'} | {state: 'checked', byn: BigInt}}
+ * @returns {{state: 'ok'} | {state: 'checked', byn: BigInt, piece: 'P' | 'Q' | 'R' | 'B' | 'N' | ''}}
  */
 function doesMoveLeaveChecked(G, forWhite, fromi, toi, fromn = 1n << fromi, ton = 1n << toi) {
   // Make move in temporary state and verify if the king is checked. In that case, the move is bad.
@@ -693,7 +743,7 @@ function doesMoveLeaveChecked(G, forWhite, fromi, toi, fromn = 1n << fromi, ton 
 
   if (kingi === NO_CELL) return {state: 'ok'};
 
-  return isCheck(T, kingi, kingn, forWhite ? T.white : T.black, forWhite ? blackPawnsThatCanCaptureOn : whitePawnsThatCanCaptureOn);
+  return isCheck(T, kingi, kingn, forWhite, forWhite ? blackPawnsThatCanCaptureOn : whitePawnsThatCanCaptureOn);
 }
 
 /**
@@ -1029,8 +1079,8 @@ function canQueenMove(G, fromi, toi, from, to) {
  * @param skipCheckCheck {boolean}
  * @returns { 'ok' | 'bad' | 'blocked' }
  */
-function canKingMove(G, fromi, toi, from, to, skipCheckCheck = false) {
-  // This skips validating the "from" cell and does no "left in check" validation
+export function canKingMove(G, fromi, toi, from, to, skipCheckCheck = false, debug = false) {
+  // This skips validating the "from" cell and optionally skips the "left in check" validation
 
   // The king can only move one square. However, it needs to also validate whether or not it would be in check after moving.
   // In Diagonal directions, walk up to the nearest piece or wall.
@@ -1055,8 +1105,16 @@ function canKingMove(G, fromi, toi, from, to, skipCheckCheck = false) {
   // We could cache it based on position and each direction, only needing revalidation if that segment changed.
   // The segment is even fairly cell agnostic, although checking it through the different layers may prove difficult.
 
-  const isWhite = (G.white & from);
-  const filled = G.white | G.black;
+  const isWhite = Boolean(G.white & from);
+  const kingColorMask = isWhite ? G.white : G.black;
+
+  let possibleMoves = kingMoves[fromi];
+  if (!(possibleMoves & to)) {
+    return 'bad';
+  }
+
+  const validMoves = (possibleMoves ^ kingColorMask) & possibleMoves;
+  if (!(validMoves & to)) return 'blocked';
 
   // If the move is a castle move then we need to check the intermediary step as well
   let castleMid_i = 0n;
@@ -1079,6 +1137,7 @@ function canKingMove(G, fromi, toi, from, to, skipCheckCheck = false) {
 
   // If castling...
   if (castleMid_i) {
+    const filled = G.white | G.black;
     const castleMid = 1n << castleMid_i;
     // Need to check fixed position from-mid-to for being empty and attacked (checked). And I guess confirm the castle is even there.
     return (
@@ -1087,7 +1146,7 @@ function canKingMove(G, fromi, toi, from, to, skipCheckCheck = false) {
         G,
         fromi,
         from,
-        isWhite ? G.white : G.black,
+        isWhite,
         isWhite ? blackPawnsThatCanCaptureOn : whitePawnsThatCanCaptureOn
       ).state === 'ok'
       &&
@@ -1103,7 +1162,7 @@ function canKingMove(G, fromi, toi, from, to, skipCheckCheck = false) {
         },
         toi,
         to,
-        isWhite ? G.white : G.black,
+        isWhite,
         isWhite ? blackPawnsThatCanCaptureOn : whitePawnsThatCanCaptureOn
       ).state === 'ok'
       &&
@@ -1119,48 +1178,49 @@ function canKingMove(G, fromi, toi, from, to, skipCheckCheck = false) {
         },
         castleMid_i,
         castleMid,
-        isWhite ? G.white : G.black,
+        isWhite,
         isWhite ? blackPawnsThatCanCaptureOn : whitePawnsThatCanCaptureOn
       ).state === 'ok'
     ) ? 'ok' : 'blocked';
   }
 
-  let possibleMoves = kingMoves[fromi];
-  if (!(possibleMoves & to)) {
-    return 'bad';
-  }
-
-  const validMoves = (possibleMoves ^ (isWhite ? G.white : G.black)) & possibleMoves;
-  if (!(validMoves & to)) return 'blocked';
-
   if (skipCheckCheck) return 'ok';
 
-  const {state} = isCheck(
+  //console.log('\n', $$$({
+  //  ...G,
+  //  kings: (G.kings ^ from) | to,
+  //  white: isWhite ? (G.white ^ from) | to : G.white,
+  //  black: !isWhite ? (G.black ^ from) | to : G.black
+  //}, 'checking check'))
+  const H = {
+    ...G,
+    kings: (G.kings ^ from) | to,
+    white: isWhite ? (G.white ^ from) | to : G.white,
+    black: !isWhite ? (G.black ^ from) | to : G.black
+  };
+  const finalCheckCheck = isCheck(
     // Need to move the king because otherwise its old position might block a ray. I don't think we need to OR the `to` but :shrug:
-    {
-      ...G,
-      kings: (G.kings ^ from) | to,
-      white: isWhite ? (G.white ^ from) | to : G.white,
-      black: !isWhite ? (G.black ^ from) | to : G.black
-    },
-    G.kings & G.white,
-    G.kings & G.white,
-    isWhite ? G.white : G.black,
+    H,
+    singleBitToIndex.get(to), // Assumes there is one king...
+    to,
+    isWhite,
     isWhite ? blackPawnsThatCanCaptureOn : whitePawnsThatCanCaptureOn
-  ).state;
+  );
 
-  return state !== 'ok' ? 'blocked' : 'ok';
+  if (debug) console.log('final:', finalCheckCheck, indexToId[finalCheckCheck.byn],$$(finalCheckCheck.byn),'\n', singleBitToIndex.get(G.kings & kingColorMask), indexToId[singleBitToIndex.get(G.kings & kingColorMask)])
+  return finalCheckCheck.state !== 'ok' ? 'blocked' : 'ok';
 }
 
 /**
  * @param G {Game}
  * @param at_i {BigInt}
  * @param at_n {BigInt}
- * @param colorMapOfKingColor {BigInt}
+ * @param forWhite {boolean}
  * @param pawnCellAttacks {BigInt[]}
- * @returns {{state: 'ok' | 'checked', byn: BigInt}}
+ * @param [debug] {boolean}
+ * @returns {{state: 'ok' | 'checked', byn: BigInt, piece: 'P' | 'Q' | 'R' | 'B' | 'N' | ''}}
  */
-function isCheck(G, at_i, at_n, colorMapOfKingColor, pawnCellAttacks, debug=false) {
+export function isCheck(G, at_i, at_n, forWhite, pawnCellAttacks, debug=false) {
   // Assumes the cell at given index to be containing a king of given color. Does not verify this.
   // (This way we can pass the same state for neighbor king moves without the need to update any
   // states since a king can't check itself. This even works for castling.)
@@ -1180,6 +1240,8 @@ function isCheck(G, at_i, at_n, colorMapOfKingColor, pawnCellAttacks, debug=fals
 
   // We can also focus on just the 9 king squares and skip anything else.
 
+  const colorMapOfKingColor = forWhite ? G.white : G.black;
+  const colorMapOfOpp = forWhite ? G.black : G.white;
   const filled = G.black | G.white;
 
   // For all rays, scan the ray until the first piece or the edge, skipping empty cells
@@ -1199,7 +1261,7 @@ function isCheck(G, at_i, at_n, colorMapOfKingColor, pawnCellAttacks, debug=fals
     const {state, byn} = isRayCheck(G, filled, index, G.rooks, colorMapOfKingColor);
     if (debug && state === 'checked') console.log(at_i, 'checked by', (G.queens & byn) ? 'queen' : 'rook', '→ byn=', byn);
     if (state === 'end') break;
-    if (state === 'checked') return { state: 'checked', byn: index };
+    if (state === 'checked') return { state: 'checked', byn: index, piece: (G.queens & byn) ? 'Q' : 'R' };
   }
 
   // rook, leftward
@@ -1212,7 +1274,7 @@ function isCheck(G, at_i, at_n, colorMapOfKingColor, pawnCellAttacks, debug=fals
     const {state, byn} = isRayCheck(G, filled, index, G.rooks, colorMapOfKingColor);
     if (debug && state === 'checked') console.log(at_i, 'checked by', (G.queens & byn) ? 'queen' : 'rook', '← byn=', byn);
     if (state === 'end') break;
-    if (state === 'checked') return { state: 'checked', byn: index };
+    if (state === 'checked') return { state: 'checked', byn: index, piece: (G.queens & byn) ? 'Q' : 'R' };
   }
 
   // rook, downward
@@ -1225,7 +1287,7 @@ function isCheck(G, at_i, at_n, colorMapOfKingColor, pawnCellAttacks, debug=fals
     const {state, byn} = isRayCheck(G, filled, index, G.rooks, colorMapOfKingColor);
     if (debug && state === 'checked') console.log(at_i, 'checked by', (G.queens & byn) ? 'queen' : 'rook', '↓ byn=', byn);
     if (state === 'end') break;
-    if (state === 'checked') return { state: 'checked', byn: index };
+    if (state === 'checked') return { state: 'checked', byn: index, piece: (G.queens & byn) ? 'Q' : 'R' };
   }
 
   // rook, upward
@@ -1238,7 +1300,7 @@ function isCheck(G, at_i, at_n, colorMapOfKingColor, pawnCellAttacks, debug=fals
     const {state, byn} = isRayCheck(G, filled, index, G.rooks, colorMapOfKingColor);
     if (debug && state === 'checked') console.log(at_i, 'checked by', (G.queens & byn) ? 'queen' : 'rook', '↑ byn=', byn);
     if (state === 'end') break;
-    if (state === 'checked') return { state: 'checked', byn: index };
+    if (state === 'checked') return { state: 'checked', byn: index, piece: (G.queens & byn) ? 'Q' : 'R' };
   }
 
   // bishop, right-down-ward
@@ -1252,7 +1314,7 @@ function isCheck(G, at_i, at_n, colorMapOfKingColor, pawnCellAttacks, debug=fals
     const {state, byn} = isRayCheck(G, filled, index, G.bishops, colorMapOfKingColor);
     if (debug && state === 'checked') console.log(at_i, 'checked by', (G.queens & byn) ? 'queen' : 'rook', '↘ byn=', byn);
     if (state === 'end') break;
-    if (state === 'checked') return { state: 'checked', byn: index };
+    if (state === 'checked') return { state: 'checked', byn: index, piece: (G.queens & byn) ? 'Q' : 'B' };
   }
 
   // bishop, left-down-ward
@@ -1266,7 +1328,7 @@ function isCheck(G, at_i, at_n, colorMapOfKingColor, pawnCellAttacks, debug=fals
     const {state, byn} = isRayCheck(G, filled, index, G.bishops, colorMapOfKingColor);
     if (debug && state === 'checked') console.log(at_i, 'checked by', (G.queens & byn) ? 'queen' : 'rook', '↙ byn=', byn);
     if (state === 'end') break;
-    if (state === 'checked') return { state: 'checked', byn: index };
+    if (state === 'checked') return { state: 'checked', byn: index, piece: (G.queens & byn) ? 'Q' : 'B' };
   }
 
   // bishop, right-up-ward
@@ -1280,7 +1342,7 @@ function isCheck(G, at_i, at_n, colorMapOfKingColor, pawnCellAttacks, debug=fals
     const {state, byn} = isRayCheck(G, filled, index, G.bishops, colorMapOfKingColor);
     if (debug && state === 'checked') console.log(at_i, 'checked by', (G.queens & byn) ? 'queen' : 'rook', '↗ byn=', byn);
     if (state === 'end') break;
-    if (state === 'checked') return { state: 'checked', byn: index };
+    if (state === 'checked') return { state: 'checked', byn: index, piece: (G.queens & byn) ? 'Q' : 'B' };
   }
 
   // bishop, left-up-ward
@@ -1294,40 +1356,41 @@ function isCheck(G, at_i, at_n, colorMapOfKingColor, pawnCellAttacks, debug=fals
     const {state, byn} = isRayCheck(G, filled, index, G.bishops, colorMapOfKingColor);
     if (debug && state === 'checked') console.log(at_i, 'checked by', (G.queens & byn) ? 'queen' : 'rook', '↖ byn=', byn);
     if (state === 'end') break;
-    if (state === 'checked') return { state: 'checked', byn: index };
+    if (state === 'checked') return { state: 'checked', byn: index, piece: (G.queens & byn) ? 'Q' : 'B' };
   }
 
   // knight
   const knightMayCheckFrom = knightMoves[at_i];
-  const oppKnights = (G.knights ^ colorMapOfKingColor) & G.knights;
+  const oppKnights = (G.knights & colorMapOfOpp) & G.knights;
   const byKnights = knightMayCheckFrom & oppKnights;
   if (debug && Boolean(byKnights)) console.log(at_i, 'checked by knight, byn=', byKnights);
   if (byKnights) {
-    return { state: 'checked', byn: byKnights };
+    return { state: 'checked', byn: byKnights, piece: 'N' };
   }
 
   // king
   // There should be only one opp king, but this will check if any neighbor cell of the cell being
   // checked for being in check has an opp king. If any king neighbors it, the cell is under attack.
-  const oppKings = (G.kings ^ colorMapOfKingColor) & G.kings;
+  const oppKings = (G.kings & colorMapOfOpp) & G.kings;
   const neighborCells = kingMoves[at_i];
   const byKings = neighborCells & oppKings;
   if (debug && Boolean(byKings)) console.log(at_i, 'checked by king, byn=', byKings);
   if (byKings) {
-    return { state: 'checked', byn: byKings };
+    return { state: 'checked', byn: byKings, piece: 'N' };
   }
 
   // pawns
   // Find all pawns of the given color, determine the cells they attack, check if king is one of them
-  const oppPawns = (G.pawns ^ colorMapOfKingColor) & G.pawns;
+  const oppPawns = (G.pawns & colorMapOfOpp) & G.pawns;
   const potentialCellAttackers = pawnCellAttacks[at_i];
   const attackingPawns = oppPawns & potentialCellAttackers;
-  if (debug && attackingPawns) console.log(at_i, 'checked by pawnn, byn=', attackingPawns);
+  if (debug && attackingPawns) console.log(indexToId[at_i], 'is checked by pawn, byn=', attackingPawns);
+  if (debug && attackingPawns) console.log('attacking pawns:', $$(attackingPawns))
   if (attackingPawns) {
-    return { state: 'checked', byn: attackingPawns };
+    return { state: 'checked', byn: attackingPawns, piece: 'P' };
   }
 
-  return { state: 'ok', byn: NO_CELL };
+  return { state: 'ok', byn: NO_CELL, piece: '' };
 }
 
 /**
@@ -1363,7 +1426,7 @@ function isRayCheck(G, filled, n, rayTypeField, colorMap) {
  * @param G {Game}
  * @returns {{white: {rooks: number, knights: number, pawns: number, bishops: number, queens: number}, black: {rooks: number, knights: number, pawns: number, bishops: number, queens: number}}}
  */
-function getMatrial(G) {
+export function getMaterial(G) {
   // The lack of popcount (and even clz) for bigint actually makes this a bit of an awkward process.
   // We just walk the board (64 cell max) and check each piece layer. If there's a match we update the state.
   const state = {
@@ -1384,7 +1447,6 @@ function getMatrial(G) {
       rooks: 0,
     },
   };
-
 
   for (let i=0n; i<64n; ++i) {
     const n = 1n << i;
@@ -1410,7 +1472,7 @@ function getMatrial(G) {
  * @param material {{rooks: number, knights: number, pawns: number, bishops: number, queens: number}}}
  * @returns number
  */
-function getMaterialPoints(material) {
+export function points(material) {
   // If a promoted piece replaces a captured piece then it will count for points.
   // However, a double queen only counts once.
   return (
@@ -1420,8 +1482,4 @@ function getMaterialPoints(material) {
     (2 - Math.max(0, Math.min(2, material.rooks))) * 5 +
     (1 - Math.max(0, Math.min(1, material.queens))) * 8
   );
-}
-
-if (typeof module !== 'undefined' && module?.exports !== undefined) {
-  module.exports.makeCompleteMove = makeCompleteMove;
 }

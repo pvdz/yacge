@@ -1,3 +1,5 @@
+import {$$} from "./utils.js"
+
 /**
  * For each cell of a chess board, represent all the valid move targets for a knight on that cell.
  * The reverse also applies; for each cell it gives you all cells from which a knight may reach that cell.
@@ -5,7 +7,7 @@
  * The ones represent valid move targets for a knight, notwithstanding actual board state rules.
  * @type {BigInt[]}
  */
-const knightMoves = [
+export const knightMoves = [
   `
     00000000
     00000000
@@ -654,3 +656,84 @@ const knightMoves = [
     00000000
   `,
 ].map(s => BigInt(`0b${s.replace('N', '0').replace(/\s/g, '')}`));
+
+/**
+ * For each index, representing a cell index, list an array of cell indices where this
+ * knight could potentially move to from that cell (provided the board state allows it)
+ *
+ * Generated through:
+ *   for (let n=0n; n<64n; ++n) {
+ *     knightCellToMoveCells[n] = [];
+ *     for (let i=0n; i<64n; ++i) {
+ *       if (knightMoves[n] & (1n << i)) knightCellToMoveCells[n].push(i);
+ *     }
+ *   }
+ *
+ * @type {BigInt[][]}
+ */
+export const knightCellToMoveCells = [
+    [ 10n, 17n ],
+    [ 11n, 16n, 18n ],
+    [  8n, 12n, 17n, 19n ],
+    [  9n, 13n, 18n, 20n ],
+    [ 10n, 14n, 19n, 21n ],
+    [ 11n, 15n, 20n, 22n ],
+    [ 12n, 21n, 23n ],
+    [ 13n, 22n ],
+    [  2n, 18n, 25n ],
+    [  3n, 19n, 24n, 26n ],
+    [  0n,  4n, 16n, 20n, 25n, 27n ],
+    [  1n,  5n, 17n, 21n, 26n, 28n ],
+    [  2n,  6n, 18n, 22n, 27n, 29n ],
+    [  3n,  7n, 19n, 23n, 28n, 30n ],
+    [  4n, 20n, 29n, 31n ],
+    [  5n, 21n, 30n ],
+    [  1n, 10n, 26n, 33n ],
+    [  0n,  2n, 11n, 27n, 32n, 34n ],
+    [  1n,  3n,  8n, 12n, 24n, 28n, 33n, 35n ],
+    [  2n,  4n,  9n, 13n, 25n, 29n, 34n, 36n ],
+    [  3n,  5n, 10n, 14n, 26n, 30n, 35n, 37n ],
+    [  4n,  6n, 11n, 15n, 27n, 31n, 36n, 38n ],
+    [  5n,  7n, 12n, 28n, 37n, 39n ],
+    [  6n, 13n, 29n, 38n ],
+    [  9n, 18n, 34n, 41n ],
+    [  8n, 10n, 19n, 35n, 40n, 42n ],
+    [  9n, 11n, 16n, 20n, 32n, 36n, 41n, 43n ],
+    [ 10n, 12n, 17n, 21n, 33n, 37n, 42n, 44n ],
+    [ 11n, 13n, 18n, 22n, 34n, 38n, 43n, 45n ],
+    [ 12n, 14n, 19n, 23n, 35n, 39n, 44n, 46n ],
+    [ 13n, 15n, 20n, 36n, 45n, 47n ],
+    [ 14n, 21n, 37n, 46n ],
+    [ 17n, 26n, 42n, 49n ],
+    [ 16n, 18n, 27n, 43n, 48n, 50n ],
+    [ 17n, 19n, 24n, 28n, 40n, 44n, 49n, 51n ],
+    [ 18n, 20n, 25n, 29n, 41n, 45n, 50n, 52n ],
+    [ 19n, 21n, 26n, 30n, 42n, 46n, 51n, 53n ],
+    [ 20n, 22n, 27n, 31n, 43n, 47n, 52n, 54n ],
+    [ 21n, 23n, 28n, 44n, 53n, 55n ],
+    [ 22n, 29n, 45n, 54n ],
+    [ 25n, 34n, 50n, 57n ],
+    [ 24n, 26n, 35n, 51n, 56n, 58n ],
+    [ 25n, 27n, 32n, 36n, 48n, 52n, 57n, 59n ],
+    [ 26n, 28n, 33n, 37n, 49n, 53n, 58n, 60n ],
+    [ 27n, 29n, 34n, 38n, 50n, 54n, 59n, 61n ],
+    [ 28n, 30n, 35n, 39n, 51n, 55n, 60n, 62n ],
+    [ 29n, 31n, 36n, 52n, 61n, 63n ],
+    [ 30n, 37n, 53n, 62n ],
+    [ 33n, 42n, 58n ],
+    [ 32n, 34n, 43n, 59n ],
+    [ 33n, 35n, 40n, 44n, 56n, 60n ],
+    [ 34n, 36n, 41n, 45n, 57n, 61n ],
+    [ 35n, 37n, 42n, 46n, 58n, 62n ],
+    [ 36n, 38n, 43n, 47n, 59n, 63n ],
+    [ 37n, 39n, 44n, 60n ],
+    [ 38n, 45n, 61n ],
+    [ 41n, 50n ],
+    [ 40n, 42n, 51n ],
+    [ 41n, 43n, 48n, 52n ],
+    [ 42n, 44n, 49n, 53n ],
+    [ 43n, 45n, 50n, 54n ],
+    [ 44n, 46n, 51n, 55n ],
+    [ 45n, 47n, 52n ],
+    [ 46n, 53n ]
+  ];

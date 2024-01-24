@@ -1,8 +1,13 @@
+import {findSourceCellFromPgnMove, makeCompleteMove} from './chess.js';
+import {idToIndex, indexToId} from './constants.js';
+import {getFenString} from './serialize.js';
+import {parseFen} from './parser.js';
+
 /**
  * @param {LocalState} L
  * @param {number} [steps]
  */
-function reflectHistory(L, steps) {
+export function reflectHistory(L, steps) {
   if (steps !== undefined) moveHistoryPointer(L, steps);
 
   const move = L.history.moves[L.history.index];
@@ -24,7 +29,7 @@ function reflectHistory(L, steps) {
  * @param {LocalState} L
  * @param steps {number}
  */
-function moveHistoryPointer(L, steps) {
+export function moveHistoryPointer(L, steps) {
   setHistoryPointer(L, L.history.index + steps);
 }
 
@@ -41,7 +46,7 @@ function setHistoryPointer(L, index) {
 /**
  * @param {LocalState} L
  */
-function displayHistory(L) {
+export function displayHistory(L) {
   const pre = L.html.history;
   pre.innerHTML = '';
 
@@ -171,13 +176,13 @@ function displayHistory(L) {
  * @param {string} [str]
  * @returns {Element}
  */
-function toggleHistoryAutoPlay(L, str) {
+export function toggleHistoryAutoPlay(L, str) {
   if (L.autoPlayTimer) {
-    console.log('stopping uatoplay')
+    console.log('stopping autoplay')
     clearInterval(L.autoPlayTimer);
     L.autoPlayTimer = 0;
   } else {
-    console.log('starting uatoplay')
+    console.log('starting autoplay')
     L.autoPlayTimer = setInterval(() => {
       moveHistoryPointer(L, 1);
       reflectHistory(L);
@@ -194,7 +199,7 @@ function toggleHistoryAutoPlay(L, str) {
  * @param [debug] {boolean}
  * @returns {HistoryMove}
  */
-function preComputeHistoryStep(G, pgnGame, ply, halfGameTurn, fullGameTurn, debug = false) {
+export function preComputeHistoryStep(G, pgnGame, ply, halfGameTurn, fullGameTurn, debug = false) {
   const forWhite = halfGameTurn % 2 === 1; // Offset at 1 because 0 is the starting board
   const {i: fromi, n: fromn} = findSourceCellFromPgnMove(G, forWhite, ply.piece, ply.to, ply.fromFile, ply.fromRank, debug);
   const toi = idToIndex[ply.to];

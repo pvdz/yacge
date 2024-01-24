@@ -1,3 +1,9 @@
+import {CELL_DATA, FILE_HEADERS, idToIndex, NO_CELL, NO_CELL_I} from './constants.js';
+import {FEN_NEW_GAME, parseFen} from './parser.js';
+import {M, S} from './game.js';
+import {getPieceIconAt} from './serialize.js';
+import {canMove, makeCompleteMoveIncHistory} from './chess.js';
+
 function div(cls = '', parent) {
   const div = document.createElement('div');
   if (cls) div.className = cls;
@@ -38,14 +44,14 @@ function createBoardHtml() {
   });
   FILE_HEADERS.forEach(str => inner.appendChild(div('gutter_label')).innerHTML = str);
 
-  return {root: outer, cellDivs: cellDivs.reverse(), board: inner};
+  return {root: outer, cellDivs: cellDivs.slice(0).reverse(), board: inner};
 }
 
 /**
  * @param {string} [uid] A unique id for this LocalState. Used, for example, to namespace radio button names (which are otherwise global). Defaults to a Math.random value.
  * @returns {LocalState}
  */
-function createBoard(uid) {
+export function createBoard(uid) {
   const {root: board, board: inner, cellDivs} = createBoardHtml();
   document.body.appendChild(board);
 
@@ -242,4 +248,3 @@ function createBoard(uid) {
 
   return L;
 }
-

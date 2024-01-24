@@ -1,3 +1,11 @@
+import {idToIndex, indexToId, NO_CELL_I} from './constants';
+import {reflectHistory, toggleHistoryAutoPlay} from './history';
+import {loadPgnAndReflect, parsePgnPly} from './pgn';
+import {parseFen} from './parser';
+import {S} from './game';
+import {findSourceCellFromPgnMove, makeCompleteMoveIncHistory} from './chess';
+import {clearArrows, reflect} from './ui';
+
 /**
  * @param {string} [cls]
  * @param {Element} [parent]
@@ -457,13 +465,15 @@ function menuValidation(L) {
 
   fs.appendChild(labeledInput('radio', `validation_${L.uid}`, 'none', ' none '));
   fs.appendChild(labeledInput('radio', `validation_${L.uid}`, 'strict', ' strict ', undefined, true));
-  const showAll = fs.appendChild(labeledInput('checkbox', '', '', ' Show all pseudo moves', '$show_pseudo_moves', true));
+
+  const showAll = fs.appendChild(labeledInput('checkbox', '', '', ' Show all pseudo moves', '', true));
+  L.html.showAll = showAll;
 
   fs.addEventListener('change', () => {
     L.validationMode = document.querySelector(`input[name=validation_${L.uid}]:checked`).value;
   });
 
-  showAll.addEventListener('change', () => reflect(L.G));
+  showAll.addEventListener('change', () => reflect(L));
 
   return fs;
 }
@@ -550,7 +560,6 @@ function menuArrowControl(L) {
   button.addEventListener('pointerup', () => clearArrows(L));
   layers.appendChild(document.createElement('br'));
   layers.appendChild(button);
-
 
   return layers;
 }
@@ -680,7 +689,7 @@ function createMenuHtml(L) {
  * @param {LocalState} L
  * @returns {Element}
  */
-function createMenu(L) {
+export function createMenu(L) {
   const menu = createMenuHtml(L);
   document.body.appendChild(menu);
 }
